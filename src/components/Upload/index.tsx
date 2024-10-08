@@ -1,20 +1,17 @@
 "use client";
-import React, { useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { useImangePreviewStore } from "@/store/imagePreviewStoer";
 import resizeImage from "@/utils/resizeImage";
 
-const Upload: React.FC = () => {
+interface UploadProps {
+  onUploadComplete?: () => void;
+}
+
+const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
   const oldFileRef = useRef<File | null>(null);
 
-  const {
-    previewImage,
-    setPreviewImage,
-    setOriginalFile,
-    originalFile,
-    setIsOldImageSameNewImage,
-    isOldImageSameNewImage,
-  } = useImangePreviewStore();
+  const { previewImage, setPreviewImage, setOriginalFile, originalFile, setIsOldImageSameNewImage, isOldImageSameNewImage } = useImangePreviewStore();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -34,9 +31,13 @@ const Upload: React.FC = () => {
         setOriginalFile(file);
         const previewUrl = URL.createObjectURL(file);
         setPreviewImage([previewUrl]);
+
+        if (onUploadComplete) {
+          onUploadComplete();
+        }
       }
     },
-    [originalFile, setOriginalFile, setPreviewImage]
+    [originalFile, setOriginalFile, setPreviewImage, onUploadComplete]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -60,9 +61,9 @@ const Upload: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           cursor: "pointer",
-          ...(previewImage
+          ...(previewImage && previewImage.length > 0
             ? {
-                backgroundImage: `url(${previewImage})`,
+                backgroundImage: `url(${previewImage[0]})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }
@@ -71,9 +72,7 @@ const Upload: React.FC = () => {
         {...getRootProps({ className: "dropzone" })}
       >
         <input {...getInputProps()} />
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           <span
             style={{
               padding: "0.5rem 1rem",
@@ -88,9 +87,7 @@ const Upload: React.FC = () => {
           >
             Upload
           </span>
-          <span style={{ fontSize: "0.8rem", color: "#fff" }}>
-            JPG and PNG files
-          </span>
+          <span style={{ fontSize: "0.8rem", color: "#fff" }}>JPG and PNG files</span>
         </div>
       </div>
     </section>

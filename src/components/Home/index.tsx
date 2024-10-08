@@ -17,12 +17,11 @@ import { useImangeResponseStore } from "@/store/imageResponseStore";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedTool, setSelectedTool] = useState<"freehand" | "rectangle">("freehand");
   const { generateClickState, setGenerateClickState } = useGenerateClickStore();
-  const { previewImage, setPreviewImage, setOriginalFile, onresetData } =
-    useImangePreviewStore();
+  const { previewImage, setPreviewImage, setOriginalFile, onresetData } = useImangePreviewStore();
   const { responseImage, onResetResponseImageData } = useImangeResponseStore();
-  const { currentWorkFolder, setCurrentWorkFolder } =
-    useCurrentWorkFolderStore();
+  const { currentWorkFolder, setCurrentWorkFolder } = useCurrentWorkFolderStore();
 
   const handleSidebarToggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -55,16 +54,11 @@ export default function Home() {
             alignItems: "center",
             height: "100%",
             margin: "auto 0px",
-            // backgroundColor: "red",
           }}
         >
           <motion.div
             initial={{ width: "0", opacity: 0 }}
-            animate={
-              isSidebarOpen
-                ? { width: "20rem", opacity: 1 }
-                : { width: 0, opacity: 0 }
-            }
+            animate={isSidebarOpen ? { width: "20rem", opacity: 1 } : { width: 0, opacity: 0 }}
             transition={{
               width: { duration: 0.3 },
               opacity: { duration: 0.5 },
@@ -76,7 +70,7 @@ export default function Home() {
               visibility: isSidebarOpen ? "visible" : "hidden",
             }}
           >
-            <Sidebar />
+            <Sidebar selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
           </motion.div>
           <div
             onClick={handleSidebarToggle}
@@ -91,15 +85,11 @@ export default function Home() {
               cursor: "pointer",
             }}
           >
-            {isSidebarOpen ? (
-              <ArrowLeft2 size="20" color="#000" />
-            ) : (
-              <ArrowRight2 size="20" color="#000" />
-            )}
+            {isSidebarOpen ? <ArrowLeft2 size="20" color="#000" /> : <ArrowRight2 size="20" color="#000" />}
           </div>
         </div>
 
-        <MainImageDisplay />
+        <MainImageDisplay selectedTool={selectedTool} />
       </div>
 
       <div
@@ -143,10 +133,7 @@ export default function Home() {
                 Download
               </Button>
             )}
-            <Button
-              style={{ color: "#000", fontWeight: "bold" }}
-              color="warning"
-            >
+            <Button style={{ color: "#000", fontWeight: "bold" }} color="warning">
               Save
             </Button>
           </>
