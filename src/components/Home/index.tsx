@@ -67,7 +67,7 @@ export default function Home() {
             initial={{ width: "0", opacity: 0 }}
             animate={
               isSidebarOpen
-                ? { width: "23rem", opacity: 1 }
+                ? { width: "20rem", opacity: 1 }
                 : { width: 0, opacity: 0 }
             }
             transition={{
@@ -119,6 +119,9 @@ export default function Home() {
           padding: "24px 24px",
           backgroundColor: "#262829",
           height: "60px",
+          position: "sticky",
+          bottom: 0,
+          left: 0,
         }}
       >
         {isSidebarOpen && (

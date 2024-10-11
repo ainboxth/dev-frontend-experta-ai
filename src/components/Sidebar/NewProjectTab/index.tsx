@@ -36,7 +36,6 @@ const NewProjectTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sliderValue, setSliderValue] = useState<number>(0.5);
 
-  // State to track last submitted values
   const [lastImageBase64, setLastImageBase64] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
   const [lastSliderValue, setLastSliderValue] = useState(0.5);
@@ -115,7 +114,6 @@ const NewProjectTab = () => {
   useEffect(() => {
     console.log("clickGenImage ", clickGenImage);
   }, [clickGenImage]);
-    
 
   const DisplayButtonGennerate = () => {
     return isValuesChanged || !clickGenImage ? (
@@ -127,7 +125,7 @@ const NewProjectTab = () => {
           height: "40px",
           width: "100%",
           borderRadius: "8px",
-          fontWeight: "bold"
+          fontWeight: "bold",
         }}
         size="md"
       >
@@ -145,7 +143,9 @@ const NewProjectTab = () => {
         }}
         size="md"
       >
-        <div style={{ display: "flex", alignItems: "center" , fontWeight: "bold"}}>
+        <div
+          style={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
+        >
           <ArrowRotateLeft size="18" color="#000" />
           <span style={{ marginLeft: "5px" }}> Generate </span>
         </div>
@@ -156,95 +156,123 @@ const NewProjectTab = () => {
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
         gap: "15px",
-        width: "95%",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        position: "relative",
+        flexDirection: "column",
       }}
     >
-      <Upload />
+      <div style={{ width: "100%", height: "100%" }}>
+        <div
+          style={{
+            gap: "15px",
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            overflow: "auto",
+            paddingBottom: "120px",
+            flexDirection: "column",
+            backgroundColor: "#181A1B",
+          }}
+        >
+          <Upload />
 
-      <Select
-        variant="faded"
-        label="Image Type"
-        labelPlacement="outside"
-        placeholder=" "
-        value={imageType}
-        onChange={(e) => setImageType(e.target.value)}
-        size="md"
-        style={{ borderRadius: "8px" }}
+          <Select
+            variant="faded"
+            label="Image Type"
+            labelPlacement="outside"
+            placeholder=" "
+            value={imageType}
+            onChange={(e) => setImageType(e.target.value)}
+            size="md"
+            style={{ borderRadius: "8px" }}
+          >
+            {dataInDropdown.imageTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Select
+            variant="faded"
+            label="Room Type"
+            labelPlacement="outside"
+            placeholder=" "
+            value={roomType}
+            onChange={(e) => setRoomType(e.target.value)}
+            size="md"
+            style={{ borderRadius: "8px" }}
+          >
+            {dataInDropdown.roomTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Select
+            variant="faded"
+            label="Style"
+            labelPlacement="outside"
+            placeholder=" "
+            value={style}
+            onChange={(e) => setStyle(e.target.value)}
+            size="md"
+            style={{ borderRadius: "8px" }}
+          >
+            {dataInDropdown.styles.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Textarea
+            placeholder=" "
+            label="Text Prompt"
+            labelPlacement="outside"
+            value={textPrompt}
+            onChange={(e) => setTextPrompt(e.target.value)}
+            minRows={6}
+            size="lg"
+            height={"100px"}
+            variant="faded"
+            style={{ borderRadius: "8px" }}
+          />
+
+          <span>
+            <strong> Denoising strength </strong> <br />
+            &nbsp; Controls how much the image changes. <br />
+            &nbsp; Lower keeps more of the original.
+          </span>
+
+          <CustomSlider
+            step={0.1}
+            maxValue={1}
+            minValue={0}
+            thumbSize={16}
+            height={8}
+            defaultValue={sliderValue}
+            onChange={handleSliderChange}
+          />
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: "sticky",
+          bottom: "0px",
+          left: "0",
+          padding: "10px 0",
+          backgroundColor: "#181A1B",
+          zIndex: 1000,
+        }}
       >
-        {dataInDropdown.imageTypes.map((type) => (
-          <SelectItem key={type} value={type}>
-            {type}
-          </SelectItem>
-        ))}
-      </Select>
-
-      <Select
-        variant="faded"
-        label="Room Type"
-        labelPlacement="outside"
-        placeholder=" "
-        value={roomType}
-        onChange={(e) => setRoomType(e.target.value)}
-        size="md"
-        style={{ borderRadius: "8px" }}
-      >
-        {dataInDropdown.roomTypes.map((type) => (
-          <SelectItem key={type} value={type}>
-            {type}
-          </SelectItem>
-        ))}
-      </Select>
-
-      <Select
-        variant="faded"
-        label="Style"
-        labelPlacement="outside"
-        placeholder=" "
-        value={style}
-        onChange={(e) => setStyle(e.target.value)}
-        size="md"
-        style={{ borderRadius: "8px" }}
-      >
-        {dataInDropdown.styles.map((s) => (
-          <SelectItem key={s} value={s}>
-            {s}
-          </SelectItem>
-        ))}
-      </Select>
-
-      <Textarea
-        placeholder=" "
-        label="Text Prompt"
-        labelPlacement="outside"
-        value={textPrompt}
-        onChange={(e) => setTextPrompt(e.target.value)}
-        minRows={6}
-        size="lg"
-        height={"100px"}
-        variant="faded"
-        style={{ borderRadius: "8px" }}
-      />
-
-      <span>
-        <strong> Denoising strength </strong> <br />
-        &nbsp; Controls how much the image changes. <br />
-        &nbsp; Lower keeps more of the original.
-      </span>
-
-      <CustomSlider
-        step={0.1}
-        maxValue={1}
-        minValue={0}
-        thumbSize={16}
-        height={8}
-        defaultValue={sliderValue}
-        onChange={handleSliderChange}
-      />
-
-      <DisplayButtonGennerate />
+        <DisplayButtonGennerate />
+      </div>
 
       <CustomModal
         title="Sorry"

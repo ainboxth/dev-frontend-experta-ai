@@ -47,10 +47,10 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {
 
       <div
         style={{
-          overflowY: "auto",
           flex: 1,
+          height: "100%",
           marginTop: "10px",
-          marginLeft: "5%",
+
         }}
       >
         {activeTab === "newProject" && <NewProjectTab />}

@@ -150,7 +150,7 @@ const MainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }) => 
   }
 
   return (
-    <div style={{ flex: 1, border: "2px solid #ffffff10", height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
+    <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
       {generateClickState ? (
         <canvas ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} style={{ width: "100%", height: "100%", cursor: "crosshair" }} />
       ) : (
