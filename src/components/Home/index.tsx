@@ -20,9 +20,7 @@ import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<"freehand" | "rectangle">(
-    "freehand"
-  );
+  const [selectedTool, setSelectedTool] = useState<"freehand" | "rubber" | "rectangle" | "point2point">("freehand");
   const { generateClickState, setGenerateClickState } = useGenerateClickStore();
   const { previewImage, setPreviewImage, setOriginalFile, onresetData } =
     useImangePreviewStore();

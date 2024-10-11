@@ -4,10 +4,8 @@ import NewProjectTab from "./NewProjectTab";
 import MagicEditTab from "./MagicEditTab";
 
 interface SidebarProps {
-  selectedTool: "freehand" | "rectangle";
-  setSelectedTool: React.Dispatch<
-    React.SetStateAction<"freehand" | "rectangle">
-  >;
+  selectedTool: "freehand" | "rubber" | "rectangle" | "point2point";
+  setSelectedTool: React.Dispatch<React.SetStateAction<"freehand" | "rubber" | "rectangle" | "point2point">>;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {

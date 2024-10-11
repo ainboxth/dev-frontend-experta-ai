@@ -1,4 +1,4 @@
-export const generateOutputImage = async (selectionPaths: Array<{ type: "freehand" | "rectangle"; points: number[][] }>, originalImage: string): Promise<string> => {
+export const generateOutputImage = async (selectionPaths: Array<{ type: "freehand" | "rubber" | "rectangle" | "point2point"; points: number[][] }>, originalImage: string): Promise<string> => {
   return new Promise((resolve) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -8,15 +8,14 @@ export const generateOutputImage = async (selectionPaths: Array<{ type: "freehan
       canvas.width = img.width;
       canvas.height = img.height;
 
-      // Set white background
-      ctx!.fillStyle = "white";
-      ctx!.fillRect(0, 0, canvas.width, canvas.height);
+      // Set transparent background
+      ctx!.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw red shapes
+      // Draw shapes
       ctx!.fillStyle = "red";
       selectionPaths.forEach((path) => {
         ctx!.beginPath();
-        if (path.type === "freehand") {
+        if (path.type === "freehand" || path.type === "point2point") {
           if (path.points.length > 0) {
             ctx!.moveTo(path.points[0][0], path.points[0][1]);
             for (let i = 1; i < path.points.length; i++) {
