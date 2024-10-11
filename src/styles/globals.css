@@ -36,3 +36,15 @@
   --tw-bg-opacity: 1;
   background-color: #efff00 !important;
 }
+
+
+.custom-tabs div{
+  border-radius: 8px !important;
+}
+.custom-tabs span{
+  border-radius: 8px !important;
+}
+
+.bg-custom-slider div div{
+  background-color: #efff00 !important;
+}

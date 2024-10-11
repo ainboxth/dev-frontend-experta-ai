@@ -58,7 +58,7 @@ export default function Home() {
         >
           <motion.div
             initial={{ width: "0", opacity: 0 }}
-            animate={isSidebarOpen ? { width: "20rem", opacity: 1 } : { width: 0, opacity: 0 }}
+            animate={isSidebarOpen ? { width: "23rem", opacity: 1 } : { width: 0, opacity: 0 }}
             transition={{
               width: { duration: 0.3 },
               opacity: { duration: 0.5 },

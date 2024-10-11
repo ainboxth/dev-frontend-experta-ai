@@ -4,6 +4,7 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  Slider,
   Textarea,
 } from "@nextui-org/react";
 import Upload from "@/components/Upload";
@@ -15,6 +16,7 @@ import { useLoadingState } from "@/store/loadingState";
 import convertToBase64 from "@/utils/encodeFileImageToBase64";
 import { getTimeStampStr } from "@/utils/getTimeStamp";
 import CustomModal from "@/components/CustomModal";
+import CustomSlider from "@/components/CustomSliderBar";
 
 const NewProjectTab = () => {
   const [imageType, setImageType] = useState("");
@@ -29,6 +31,11 @@ const NewProjectTab = () => {
   const [imageBase64ForSentToBackend, setImageBase64ForSentToBackend] =
     useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sliderValue, setSliderValue] = useState<number>(0.5);
+
+  const handleSliderChange = (value: number) => {
+    setSliderValue(value);
+  };
 
   useEffect(() => {
     const convertFileToBase64 = async () => {
@@ -57,7 +64,8 @@ const NewProjectTab = () => {
       const response = await generateImage(
         imageBase64ForSentToBackend,
         getTimeStampStr(),
-        promp
+        promp,
+        sliderValue
       );
       let parsedResponse;
       if (typeof response === "string") {
@@ -94,25 +102,6 @@ const NewProjectTab = () => {
     >
       <Upload />
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gap: "8px",
-          marginBottom: "-32px",
-        }}
-      >
-        <span style={{ fontSize: "0.9em" }}>Remove Furniture</span>
-        <Checkbox
-          className="checkbox"
-          isSelected={removeFurniture}
-          onValueChange={setRemoveFurniture}
-          color="warning"
-          size="md"
-        />
-      </div>
-
       <Select
         variant="faded"
         label="Image Type"
@@ -121,6 +110,7 @@ const NewProjectTab = () => {
         value={imageType}
         onChange={(e) => setImageType(e.target.value)}
         size="md"
+        style={{ borderRadius: "8px" }}
       >
         {dataInDropdown.imageTypes.map((type) => (
           <SelectItem key={type} value={type}>
@@ -137,6 +127,7 @@ const NewProjectTab = () => {
         value={roomType}
         onChange={(e) => setRoomType(e.target.value)}
         size="md"
+        style={{ borderRadius: "8px" }}
       >
         {dataInDropdown.roomTypes.map((type) => (
           <SelectItem key={type} value={type}>
@@ -153,6 +144,7 @@ const NewProjectTab = () => {
         value={style}
         onChange={(e) => setStyle(e.target.value)}
         size="md"
+        style={{ borderRadius: "8px" }}
       >
         {dataInDropdown.styles.map((s) => (
           <SelectItem key={s} value={s}>
@@ -167,9 +159,28 @@ const NewProjectTab = () => {
         labelPlacement="outside"
         value={textPrompt}
         onChange={(e) => setTextPrompt(e.target.value)}
-        minRows={4}
-        size="md"
+        minRows={6}
+        size="lg"
+        height={"100px"}
         variant="faded"
+        // style={{ resize: "none" }}
+        style={{ borderRadius: "8px" }}
+      />
+
+      <span>
+        <strong> Denoising strength </strong> <br />
+        &nbsp; Controls how much the image changes. <br />
+        &nbsp; Lower keeps more of the original.
+      </span>
+
+      <CustomSlider
+        step={0.1}
+        maxValue={1}
+        minValue={0}
+        thumbSize={16}
+        height={8}
+        defaultValue={sliderValue}
+        onChange={handleSliderChange}
       />
 
       <Button
@@ -181,6 +192,7 @@ const NewProjectTab = () => {
         style={{
           height: "40px",
           width: "100%",
+          borderRadius: "8px",
         }}
         size="md"
       >
