@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
+  divider,
+  image,
   Select,
   SelectItem,
   Slider,
@@ -17,6 +19,7 @@ import convertToBase64 from "@/utils/encodeFileImageToBase64";
 import { getTimeStampStr } from "@/utils/getTimeStamp";
 import CustomModal from "@/components/CustomModal";
 import CustomSlider from "@/components/CustomSliderBar";
+import { ArrowRotateLeft } from "iconsax-react";
 
 const NewProjectTab = () => {
   const [imageType, setImageType] = useState("");
@@ -33,6 +36,12 @@ const NewProjectTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sliderValue, setSliderValue] = useState<number>(0.5);
 
+  // State to track last submitted values
+  const [lastImageBase64, setLastImageBase64] = useState("");
+  const [lastPrompt, setLastPrompt] = useState("");
+  const [lastSliderValue, setLastSliderValue] = useState(0.5);
+  const [clickGenImage, setClickGenImage] = useState(false);
+
   const handleSliderChange = (value: number) => {
     setSliderValue(value);
   };
@@ -48,6 +57,7 @@ const NewProjectTab = () => {
   }, [originalFile]);
 
   const handleSubmit = async () => {
+    setClickGenImage(true);
     let parts = [];
     if (imageType) parts.push(`a(n) ${imageType}`);
     else parts.push("an");
@@ -80,6 +90,12 @@ const NewProjectTab = () => {
       }
       if (parsedResponse && Array.isArray(parsedResponse.images)) {
         setResponseImage(parsedResponse.images);
+
+        setLastImageBase64(imageBase64ForSentToBackend);
+        setLastPrompt(imageType + roomType + style + textPrompt);
+        setLastSliderValue(sliderValue);
+        console.log("ตอนนี้ควรจะเซ็ตค่าเ่าไปแล้วนะ");
+
         setIsLoadingWaitingResponse(false);
       } else {
         setIsModalOpen(true);
@@ -89,6 +105,52 @@ const NewProjectTab = () => {
       setIsModalOpen(true);
       setIsLoadingWaitingResponse(false);
     }
+  };
+
+  const isValuesChanged =
+    lastImageBase64 !== imageBase64ForSentToBackend ||
+    imageType + roomType + style + textPrompt !== lastPrompt ||
+    sliderValue !== lastSliderValue;
+
+  useEffect(() => {
+    console.log("clickGenImage ", clickGenImage);
+  }, [clickGenImage]);
+    
+
+  const DisplayButtonGennerate = () => {
+    return isValuesChanged || !clickGenImage ? (
+      <Button
+        onClick={handleSubmit}
+        color="warning"
+        className="text-black"
+        style={{
+          height: "40px",
+          width: "100%",
+          borderRadius: "8px",
+          fontWeight: "bold"
+        }}
+        size="md"
+      >
+        Generate
+      </Button>
+    ) : (
+      <Button
+        onClick={handleSubmit}
+        color="warning"
+        className="text-black font-bold"
+        style={{
+          height: "40px",
+          width: "100%",
+          borderRadius: "8px",
+        }}
+        size="md"
+      >
+        <div style={{ display: "flex", alignItems: "center" , fontWeight: "bold"}}>
+          <ArrowRotateLeft size="18" color="#000" />
+          <span style={{ marginLeft: "5px" }}> Generate </span>
+        </div>
+      </Button>
+    );
   };
 
   return (
@@ -163,7 +225,6 @@ const NewProjectTab = () => {
         size="lg"
         height={"100px"}
         variant="faded"
-        // style={{ resize: "none" }}
         style={{ borderRadius: "8px" }}
       />
 
@@ -183,21 +244,7 @@ const NewProjectTab = () => {
         onChange={handleSliderChange}
       />
 
-      <Button
-        onClick={() => {
-          handleSubmit();
-        }}
-        color="warning"
-        className="text-black font-bold"
-        style={{
-          height: "40px",
-          width: "100%",
-          borderRadius: "8px",
-        }}
-        size="md"
-      >
-        Generate
-      </Button>
+      <DisplayButtonGennerate />
 
       <CustomModal
         title="Sorry"
