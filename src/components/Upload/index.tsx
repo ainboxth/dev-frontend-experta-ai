@@ -11,7 +11,14 @@ interface UploadProps {
 const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
   const oldFileRef = useRef<File | null>(null);
 
-  const { previewImage, setPreviewImage, setOriginalFile, originalFile, setIsOldImageSameNewImage, isOldImageSameNewImage } = useImangePreviewStore();
+  const {
+    previewImage,
+    setPreviewImage,
+    setOriginalFile,
+    originalFile,
+    setIsOldImageSameNewImage,
+    isOldImageSameNewImage,
+  } = useImangePreviewStore();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -50,44 +57,59 @@ const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
 
   return (
     <section>
+      <div style={{ margin: "0.5rem 0" }}>Upload Your Image</div>
       <div
         style={{
-          padding: "10% 0",
+          padding: "5px",
+          height: "130px",
           width: "100%",
           border: "1px solid #666",
           backgroundColor: "#262829",
-          borderRadius: "18px",
+          borderRadius: "8px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           cursor: "pointer",
-          ...(previewImage && previewImage.length > 0
-            ? {
-                backgroundImage: `url(${previewImage[0]})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : {}),
+          
         }}
-        {...getRootProps({ className: "dropzone" })}
       >
-        <input {...getInputProps()} />
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <span
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid #666",
-              borderRadius: "12px",
-              backgroundColor: "#C5C5C5",
-              color: "#333",
-              fontSize: "0.8rem",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            ...(previewImage && previewImage.length > 0
+              ? {
+                  backgroundImage: `url(${previewImage[0]})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }
+              : {}),
+          }}
+          {...getRootProps({ className: "dropzone" })}
+        >
+          <input {...getInputProps()} />
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
           >
-            Upload
-          </span>
-          <span style={{ fontSize: "0.8rem", color: "#fff" }}>JPG and PNG files</span>
+            <span
+              style={{
+                padding: "0.5rem 1rem",
+                border: "1px solid #666",
+                borderRadius: "12px",
+                backgroundColor: "#C5C5C5",
+                color: "#333",
+                fontSize: "0.8rem",
+                fontWeight: "bold",
+                textAlign: "center",
+              }}
+            >
+              Upload
+            </span>
+          </div>
         </div>
       </div>
     </section>
