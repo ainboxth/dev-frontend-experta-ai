@@ -1,8 +1,8 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface SelectionPathsState {
-  paths: Array<{type: 'freehand' | 'rectangle', points: number[][]}>;
-  setPaths: (paths: Array<{type: 'freehand' | 'rectangle', points: number[][]}>) => void;
+  paths: Array<{ type: "freehand" | "rubber" | "rectangle" | "point2point"; points: number[][] }>;
+  setPaths: (paths: Array<{ type: "freehand" | "rubber" | "rectangle" | "point2point"; points: number[][] }>) => void;
   clearPaths: () => void;
 }
 

@@ -50,6 +50,9 @@ const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
 
   return (
     <section>
+      <div>
+        <h2 style={{ color: "white", fontSize: "15px", marginBottom: "8px" }}>Upload Your Image</h2>
+      </div>
       <div
         style={{
           padding: "10% 0",

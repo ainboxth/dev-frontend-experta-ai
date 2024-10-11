@@ -17,7 +17,7 @@ import { useImangeResponseStore } from "@/store/imageResponseStore";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [selectedTool, setSelectedTool] = useState<"freehand" | "rectangle">("freehand");
+  const [selectedTool, setSelectedTool] = useState<"freehand" | "rubber" | "rectangle" | "point2point">("freehand");
   const { generateClickState, setGenerateClickState } = useGenerateClickStore();
   const { previewImage, setPreviewImage, setOriginalFile, onresetData } = useImangePreviewStore();
   const { responseImage, onResetResponseImageData } = useImangeResponseStore();
@@ -58,7 +58,7 @@ export default function Home() {
         >
           <motion.div
             initial={{ width: "0", opacity: 0 }}
-            animate={isSidebarOpen ? { width: "20rem", opacity: 1 } : { width: 0, opacity: 0 }}
+            animate={isSidebarOpen ? { width: "22rem", opacity: 1 } : { width: 0, opacity: 0 }}
             transition={{
               width: { duration: 0.3 },
               opacity: { duration: 0.5 },
