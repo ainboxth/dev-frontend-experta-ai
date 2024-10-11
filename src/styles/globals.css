@@ -4,8 +4,8 @@
 
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0px;
+  height: 0px;
   border-radius: 10px;
 }
 
@@ -34,5 +34,17 @@
 .after\:bg-warning:after {
   content: var(--tw-content);
   --tw-bg-opacity: 1;
+  background-color: #efff00 !important;
+}
+
+
+.custom-tabs div{
+  border-radius: 8px !important;
+}
+.custom-tabs span{
+  border-radius: 8px !important;
+}
+
+.bg-custom-slider div div{
   background-color: #efff00 !important;
 }

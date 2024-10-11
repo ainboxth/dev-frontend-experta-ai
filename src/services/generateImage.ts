@@ -3,12 +3,14 @@ import axiosInstance from "./axiosConfic";
 const generateImage = async (
   image_base64: string,
   img_name: string,
-  prompt: string
+  prompt: string,
+  value: number
 ) => {
   const body = {
     prompt: prompt,
     img_name: img_name,
     image_base64: image_base64,
+    value: value.toString(),
   };
 
   try {

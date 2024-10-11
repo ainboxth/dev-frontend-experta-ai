@@ -1,8 +1,13 @@
 export const ConfigPage = {
 
-    //============== Development ================
+    //============== Local ================
     URL_WORK_IMG: `src/images/img2img`,
-    URL_BACKEND: "https://boar-magnetic-happily.ngrok-free.app/",
+    URL_BACKEND: "http://localhost:3000/",
+
+
+    // //============== Development ================
+    // URL_WORK_IMG: `src/images/img2img`,
+    // URL_BACKEND: "https://boar-magnetic-happily.ngrok-free.app/",
 
     
     // //============== production =====================
