@@ -162,27 +162,31 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
             ) : (
               <div
                 style={{
-                  display: "flex",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gridTemplateRows: "repeat(2, 1fr)",
                   justifyContent: "center",
-                  flexWrap: "wrap",
+                  alignItems: "center",
                   gap: "10px",
-                  margin: isOpenSidebar ? "0" : "8%",
-                  borderRadius: "8px",
+                  maxWidth: "100%",
+                  margin: "auto",
+                  boxSizing: "border-box",
+                  height: "100%",
                 }}
               >
                 {imagePaths.map((path, index) => (
                   <div
+                    key={index}
                     style={{
-                      width: "calc(50% - 180px)",
-                      objectFit: "contain",
-                      cursor: "pointer",
+                      height: "100%",
+                      overflow: "hidden",
                       borderRadius: "8px",
-                      marginBottom: index < 2 ? "0" : "10px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
                     <img
-                      key={index}
-                      // onClick={() => handleImageClick(path)}
                       onClick={() => {
                         setImagePaths([path]);
                         setListImageBeforeShowOne(imagePaths);
@@ -190,8 +194,9 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                       src={SrcImgForRender(path)}
                       alt={`Image ${index + 1}`}
                       style={{
-                        objectFit: "contain",
-                        cursor: "pointer",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
                         borderRadius: "8px",
                       }}
                     />
