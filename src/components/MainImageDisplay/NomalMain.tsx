@@ -16,7 +16,8 @@ interface MainImageDisplayType {}
 
 const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const defaultImage = defaultIMGBase64;
-  const { responseImage } = useImangeResponseStore();
+  const { responseImage, listImageBeforeShowOne, setListImageBeforeShowOne } =
+    useImangeResponseStore();
   const { previewImage } = useImangePreviewStore();
   const { isOpenSidebar } = useSidebarStage();
 
@@ -90,7 +91,6 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
           alignContent: "center",
           gap: "10px",
           borderRadius: "8px",
-          
         }}
       >
         {isLoadingWaitingResponse && (
@@ -113,17 +113,40 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
         {!isLoadingWaitingResponse && (
           <>
             {imagePaths.length === 1 ? (
-              <div 
-                style={{ width: "fit-content", height: "100%" , borderRadius: "8px"}}>
+              <div
+                style={{
+                  position: "relative",
+                  width: "fit-content",
+                  height: "100%",
+                  borderRadius: "8px",
+                }}
+              >
+                {listImageBeforeShowOne.length > 0 && (
+                  <button
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      padding: "8px",
+                      backgroundColor: "red",
+                      zIndex: 10,
+                      borderRadius: "4px",
+                    }}
+                    onClick={() => {
+                      setImagePaths(listImageBeforeShowOne);
+                    }}
+                  >
+                    Close
+                  </button>
+                )}
                 <img
-                  onClick={() => handleImageClick(imagePaths[0])}
                   src={SrcImgForRender(imagePaths[0])}
                   alt="Single Image"
                   style={{
                     width: "100%",
                     height: "100%",
                     objectFit: "contain",
-                    cursor: "pointer",
+                    cursor: "default",
                     borderRadius: "8px",
                   }}
                 />
@@ -151,7 +174,11 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                   >
                     <img
                       key={index}
-                      onClick={() => handleImageClick(path)}
+                      // onClick={() => handleImageClick(path)}
+                      onClick={() => {
+                        setImagePaths([path]);
+                        setListImageBeforeShowOne(imagePaths);
+                      }}
                       src={SrcImgForRender(path)}
                       alt={`Image ${index + 1}`}
                       style={{
