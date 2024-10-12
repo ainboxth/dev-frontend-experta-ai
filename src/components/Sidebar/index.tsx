@@ -2,17 +2,24 @@ import React, { useState } from "react";
 import { Tabs, Tab } from "@nextui-org/react";
 import NewProjectTab from "./NewProjectTab";
 import MagicEditTab from "./MagicEditTab";
+import { useSelectionTab } from "@/store/selectionTab";
 
 interface SidebarProps {
   selectedTool: "freehand" | "rubber" | "rectangle" | "point2point";
-  setSelectedTool: React.Dispatch<React.SetStateAction<"freehand" | "rubber" | "rectangle" | "point2point">>;
+  setSelectedTool: React.Dispatch<
+    React.SetStateAction<"freehand" | "rubber" | "rectangle" | "point2point">
+  >;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {
   const [activeTab, setActiveTab] = useState("newProject");
+  const { setTab } = useSelectionTab();
 
   const handleTabChange = (key: string) => {
-    setActiveTab(key);
+    if (key === "newProject" || key === "magicEdit") {
+      setActiveTab(key);
+      setTab(key);
+    }
   };
 
   return (
@@ -48,7 +55,6 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {
           flex: 1,
           height: "100%",
           marginTop: "10px",
-
         }}
       >
         {activeTab === "newProject" && <NewProjectTab />}

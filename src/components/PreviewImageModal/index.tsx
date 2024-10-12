@@ -53,6 +53,7 @@ const PreviewImageModal: React.FC<{
                 maxWidth: "90%",
                 maxHeight: "90%",
                 objectFit: "contain",
+                borderRadius: "8px",
               }}
             />
             <div >
