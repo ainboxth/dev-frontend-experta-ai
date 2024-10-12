@@ -11,6 +11,7 @@ import LoadingWaitingImage from "../Loading/LoadingWaitingImage";
 import SrcImgForRender from "@/utils/srcImgForRender";
 import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
 import { useSidebarStage } from "@/store/sidebarStage";
+import Image from "next/image";
 
 interface MainImageDisplayType {}
 
@@ -125,10 +126,8 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                   <button
                     style={{
                       position: "absolute",
-                      top: "8px",
-                      right: "8px",
-                      padding: "8px",
-                      backgroundColor: "red",
+                      top: "15px",
+                      right: "15px",
                       zIndex: 10,
                       borderRadius: "4px",
                     }}
@@ -136,7 +135,16 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                       setImagePaths(listImageBeforeShowOne);
                     }}
                   >
-                    Close
+                    <Image
+                      src={"/icon_tools/mini_preview.svg"}
+                      alt={"close preview"}
+                      width={25}
+                      height={25}
+                      style={{
+                        filter:
+                          "drop-shadow(0px 0px 2px #ffffff) drop-shadow(0px 0px 0.05px #ffffff50)",
+                      }}
+                    />
                   </button>
                 )}
                 <img
