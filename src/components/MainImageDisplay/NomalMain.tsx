@@ -10,6 +10,7 @@ import { Skeleton } from "@nextui-org/react";
 import LoadingWaitingImage from "../Loading/LoadingWaitingImage";
 import SrcImgForRender from "@/utils/srcImgForRender";
 import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
+import { useSidebarStage } from "@/store/sidebarStage";
 
 interface MainImageDisplayType {}
 
@@ -17,6 +18,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const defaultImage = defaultIMGBase64;
   const { responseImage } = useImangeResponseStore();
   const { previewImage } = useImangePreviewStore();
+  const { isOpenSidebar } = useSidebarStage();
 
   const [isOpenShowImageModal, setIsOpenShowImageModal] = useState(false);
   const [imageShowInModal, setImageShowInModal] = useState<string | null>(null);
@@ -43,7 +45,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
     if (responseImage && responseImage.length > 0) {
       setImagePaths(responseImage);
     } else if (previewImage && previewImage.length > 0) {
-      setImagePaths(previewImage) 
+      setImagePaths(previewImage);
     } else {
       setImagePaths([defaultImage]);
     }
@@ -84,10 +86,11 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
           flexWrap: "wrap",
           height: "100%",
           width: "100%",
-        //   maxWidth: "120%",
           margin: "0 auto",
           alignContent: "center",
           gap: "10px",
+          borderRadius: "8px",
+          
         }}
       >
         {isLoadingWaitingResponse && (
@@ -110,46 +113,56 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
         {!isLoadingWaitingResponse && (
           <>
             {imagePaths.length === 1 ? (
-              <img
-                onClick={() => handleImageClick(imagePaths[0])}
-                src={SrcImgForRender(imagePaths[0])}
-                alt="Single Image"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  cursor: "pointer",
-                  borderRadius: "8px",
-                }}
-              />
+              <div 
+                style={{ width: "fit-content", height: "100%" , borderRadius: "8px"}}>
+                <img
+                  onClick={() => handleImageClick(imagePaths[0])}
+                  src={SrcImgForRender(imagePaths[0])}
+                  alt="Single Image"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    cursor: "pointer",
+                    borderRadius: "8px",
+                  }}
+                />
+              </div>
             ) : (
-                <div
+              <div
                 style={{
                   display: "flex",
                   justifyContent: "center",
                   flexWrap: "wrap",
                   gap: "10px",
-                  
+                  margin: isOpenSidebar ? "0" : "8%",
+                  borderRadius: "8px",
                 }}
               >
                 {imagePaths.map((path, index) => (
-                  <img
-                    key={index}
-                    onClick={() => handleImageClick(path)}
-                    src={SrcImgForRender(path)}
-                    alt={`Image ${index + 1}`}
+                  <div
                     style={{
-                      width: "calc(50% - 100px)",
-                      maxHeight: "calc(50% - 5px)",
+                      width: "calc(50% - 180px)",
                       objectFit: "contain",
                       cursor: "pointer",
                       borderRadius: "8px",
                       marginBottom: index < 2 ? "0" : "10px",
                     }}
-                  />
+                  >
+                    <img
+                      key={index}
+                      onClick={() => handleImageClick(path)}
+                      src={SrcImgForRender(path)}
+                      alt={`Image ${index + 1}`}
+                      style={{
+                        objectFit: "contain",
+                        cursor: "pointer",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
-              
             )}
           </>
         )}

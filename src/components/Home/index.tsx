@@ -16,9 +16,10 @@ import { downloadImages } from "@/utils/downloadPreviewImg";
 import { useImangeResponseStore } from "@/store/imageResponseStore";
 import CustomModal from "../CustomModal";
 import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
+import { useSidebarStage } from "@/store/sidebarStage";
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isOpenSidebar, setIsOpenSidebar } = useSidebarStage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<"freehand" | "rubber" | "rectangle" | "point2point">("freehand");
   const { generateClickState, setGenerateClickState } = useGenerateClickStore();
@@ -29,7 +30,7 @@ export default function Home() {
     useCurrentWorkFolderStore();
 
   const handleSidebarToggle = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setIsOpenSidebar(!isOpenSidebar);
   };
 
   return (
@@ -64,7 +65,7 @@ export default function Home() {
           <motion.div
             initial={{ width: "0", opacity: 0 }}
             animate={
-              isSidebarOpen
+              isOpenSidebar
                 ? { width: "20rem", opacity: 1 }
                 : { width: 0, opacity: 0 }
             }
@@ -76,7 +77,7 @@ export default function Home() {
               height: "99%",
               overflow: "hidden",
               position: "relative",
-              visibility: isSidebarOpen ? "visible" : "hidden",
+              visibility: isOpenSidebar ? "visible" : "hidden",
             }}
           >
             <Sidebar
@@ -97,7 +98,7 @@ export default function Home() {
               cursor: "pointer",
             }}
           >
-            {isSidebarOpen ? (
+            {isOpenSidebar ? (
               <ArrowLeft2 size="20" color="#000" />
             ) : (
               <ArrowRight2 size="20" color="#000" />
@@ -108,21 +109,21 @@ export default function Home() {
         <MainImageDisplay selectedTool={selectedTool} />
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "end",
-          alignItems: "center",
-          gap: "12px",
-          padding: "24px 24px",
-          backgroundColor: "#262829",
-          height: "60px",
-          position: "sticky",
-          bottom: 0,
-          left: 0,
-        }}
-      >
-        {isSidebarOpen && (
+      {isOpenSidebar && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "end",
+            alignItems: "center",
+            gap: "12px",
+            padding: "24px 24px",
+            backgroundColor: "#262829",
+            height: "60px",
+            position: "sticky",
+            bottom: 0,
+            left: 0,
+          }}
+        >
           <>
             <Button
               isIconOnly
@@ -155,8 +156,8 @@ export default function Home() {
               Download
             </Button>
           </>
-        )}
-      </div>
+        </div>
+      )}
       {/* <CustomModal
         title="Sorry"
         content={<div> Can't download empty image please generateImage again</div>}

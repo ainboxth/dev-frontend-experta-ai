@@ -19,7 +19,7 @@ export default function TP() {
       <div style={{ width: "100%", height: "55px", backgroundColor: "#181A1B" }}>
         <img src="/default/logo.webp" alt="logo" style={{height: "100%", marginLeft: "8px"}}/>
       </div>
-      <div style={{ width: "100%", height: "90%" }}>
+      <div style={{ width: "100%", height: "calc(95% - 55px)" }}>
         <Home />
       </div>
     </div>
