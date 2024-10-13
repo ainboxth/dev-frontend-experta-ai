@@ -12,7 +12,7 @@ export const generateOutputImage = async (selectionPaths: Array<{ id: string; ty
       ctx!.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw shapes
-      ctx!.fillStyle = "red";
+      ctx!.fillStyle = "black";
       selectionPaths.forEach((path) => {
         if (path.type !== "rubber") {
           ctx!.beginPath();

@@ -34,20 +34,17 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
   const [editOption, setEditOption] = useState<string>("");
 
-  const handleGenerate = async () => {
+  const handleRemove = async () => {
     if (previewImageV2 && previewImageV2.length > 0 && originalFileV2) {
       setIsLoadingWaitingResponse(true);
       try {
         const image_base64 = await generateOutputImage(paths, previewImageV2[0]);
-        const base64Data = image_base64.split(",")[1];
-        const base64Image = await convertToBase64(originalFileV2);
+        const base64CustomImage = image_base64.split(",")[1];
+        const base64OriginalImage = await convertToBase64(originalFileV2);
         const response = await axios.post("https://boar-magnetic-happily.ngrok-free.app/remove_mask", {
-          // prompt: "change pillow color to red",
-          image_base64: base64Image,
-          // img_name: originalFile.name,
-          mask_base64: base64Data,
+          image_base64: base64OriginalImage,
+          mask_base64: base64CustomImage,
         });
-        console.log("Response from server:", response);
 
         if (response.status === 200) {
           setMagicGeneratedState(true);
@@ -58,7 +55,35 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
         }
       } catch (error) {
         console.error("Error generating output image:", error);
-        // Handle error (e.g., show an error message to the user)
+      } finally {
+        setIsLoadingWaitingResponse(false);
+      }
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (previewImageV2 && previewImageV2.length > 0 && originalFileV2) {
+      setIsLoadingWaitingResponse(true);
+      try {
+        const image_base64 = await generateOutputImage(paths, previewImageV2[0]);
+        const base64CustomImage = image_base64.split(",")[1];
+        const base64OriginalImage = await convertToBase64(originalFileV2);
+        const response = await axios.post("https://boar-magnetic-happily.ngrok-free.app/inpaint2img", {
+          prompt: getCombinedPrompt(),
+          image_base64: base64OriginalImage,
+          img_name: originalFileV2.name,
+          mask_base64: base64CustomImage,
+        });
+
+        if (response.status === 200) {
+          setMagicGeneratedState(true);
+          const outputImage = response.data.images;
+          setResponseImageV2(outputImage);
+        } else {
+          throw new Error("Invalid response from server");
+        }
+      } catch (error) {
+        console.error("Error generating output image:", error);
       } finally {
         setIsLoadingWaitingResponse(false);
       }
@@ -71,9 +96,6 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   const handleEditOptionChange = (value: string) => {
-    // Clear states when changing options
-    setSelectedColor("");
-    setSelectedMaterial("");
     setIsColorPickerOpen(false);
     setIsMaterialPickerOpen(false);
     setEditOption(value);
@@ -82,6 +104,13 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const handleMaterialSelect = (material: string) => {
     setSelectedMaterial(material);
     setIsMaterialPickerOpen(false);
+  };
+
+  const getCombinedPrompt = () => {
+    let combined = prompt;
+    if (selectedColor) combined += `, Color: ${selectedColor}`;
+    if (selectedMaterial) combined += `, Material: ${selectedMaterial}`;
+    return combined;
   };
 
   return (
@@ -109,7 +138,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           <div style={{ display: "flex", flexDirection: "column", width: "35%" }}>
             <label style={{ fontSize: "0.875rem", color: "white", marginBottom: "4px" }}>Magic Eraser</label>
             <Button
-              onClick={handleGenerate}
+              onClick={handleRemove}
               color="warning"
               style={{
                 height: "40px",
@@ -134,7 +163,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
       {isMaterialPickerOpen && <MaterialPicker onMaterialSelect={handleMaterialSelect} />}
 
-      <Textarea placeholder=" " label="Text Prompt" labelPlacement="outside" value={prompt} onChange={(e) => setPrompt(e.target.value)} minRows={4} size="md" variant="faded" />
+      <Textarea placeholder=" " label="Text Prompt" labelPlacement="outside" value={getCombinedPrompt()} onChange={(e) => setPrompt(e.target.value)} minRows={4} size="md" variant="faded" />
 
       <Button
         onClick={handleGenerate}
