@@ -9,7 +9,7 @@ interface FileState {
   setOriginalFileV2: (file: File | null) => void;
   setIsOldImageSameNewImageV2: (value: boolean) => void;
   setIsLoadingWaitingResponseV2: (value: boolean) => void;
-  onresetDataV2: () => void;
+  resetMagicUploadState: () => void;
 }
 
 export const useImangePreviewStore = create<FileState>((set) => ({
@@ -21,5 +21,5 @@ export const useImangePreviewStore = create<FileState>((set) => ({
   setOriginalFileV2: (file) => set({ originalFileV2: file }),
   setIsOldImageSameNewImageV2: (value) => set({ isOldImageSameNewImageV2: value }),
   setIsLoadingWaitingResponseV2: (value) => set({ isLoadingWaitingResponseV2: value }),
-  onresetDataV2: () => set({ previewImageV2: [], originalFileV2: null }),
+  resetMagicUploadState: () => set({ previewImageV2: [], originalFileV2: null, isOldImageSameNewImageV2: false }),
 }));

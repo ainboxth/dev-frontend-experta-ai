@@ -1,38 +1,52 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import { Button } from "@nextui-org/react";
 import { ArrowLeft2, ArrowRight2, Trash } from "iconsax-react";
-import { SetStateAction, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import "@/styles/globals.css";
 import { useImangePreviewStore } from "@/store/imagePreviewStore";
 import { useImangePreviewStore as useImangePreviewStoreV2 } from "@/store/magicImagePreviewStore";
-import PreviewImageModal from "@/components/PreviewImageModal";
-import { useGenerateClickStore } from "@/store/generateClickState";
 import deleteFolderImage from "@/utils/deleteFolderImage";
 import { useCurrentWorkFolderStore } from "@/store/currentWorkFolder";
 import MainImageDisplay from "@/components/MainImageDisplay";
-import { downloadImages } from "@/utils/downloadPreviewImg";
 import { useImangeResponseStore } from "@/store/imageResponseStore";
 import { useImangeResponseStore as useImangeResponseStoreV2 } from "@/store/magicImageResponseStore";
-import CustomModal from "../CustomModal";
-import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
 import { useSidebarStage } from "@/store/sidebarStage";
+import { useSelectionPathsStore } from "@/store/selectionPathStore";
+import { useMagicGeneratedStore } from "@/store/magicGeneratedState";
+import { useMagicUploadedStore } from "@/store/magicUploadedState";
+import { downloadImages } from "@/utils/downloadPreviewImg";
 
 export default function Home() {
   const { isOpenSidebar, setIsOpenSidebar } = useSidebarStage();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<"freehand" | "rubber" | "rectangle" | "point2point">("freehand");
-  const { generateClickState, setGenerateClickState } = useGenerateClickStore();
   const { onresetData } = useImangePreviewStore();
-  const { onresetDataV2 } = useImangePreviewStoreV2();
+  const { resetMagicUploadState } = useImangePreviewStoreV2();
   const { responseImage, onResetResponseImageData } = useImangeResponseStore();
   const { responseImageV2, onResetResponseImageDataV2 } = useImangeResponseStoreV2();
   const { currentWorkFolder, setCurrentWorkFolder } = useCurrentWorkFolderStore();
+  const { clearPaths } = useSelectionPathsStore();
+  const { setMagicGeneratedState } = useMagicGeneratedStore();
+  const { setMagicUploadedState } = useMagicUploadedStore();
 
   const handleSidebarToggle = () => {
     setIsOpenSidebar(!isOpenSidebar);
+  };
+
+  const handleReset = () => {
+    if (currentWorkFolder !== "") {
+      deleteFolderImage(currentWorkFolder);
+    }
+    onresetData();
+    resetMagicUploadState();
+    setCurrentWorkFolder("");
+    onResetResponseImageData();
+    onResetResponseImageDataV2();
+    clearPaths();
+    setMagicGeneratedState(false);
+    setMagicUploadedState(false);
   };
 
   return (
@@ -115,63 +129,40 @@ export default function Home() {
             left: 0,
           }}
         >
-          <>
+          <Button isIconOnly variant="light" startContent={<Trash size="28" color="#fff" />} onClick={handleReset} />
+          {responseImage && responseImage.length > 0 && (
             <Button
-              isIconOnly
-              variant="light"
-              startContent={<Trash size="28" color="#fff" />}
               onClick={() => {
-                if (currentWorkFolder !== "") {
-                  deleteFolderImage(currentWorkFolder);
-                }
-                onresetData();
-                onresetDataV2();
-                setGenerateClickState(false);
-                setCurrentWorkFolder("");
-                onResetResponseImageData();
-                onResetResponseImageDataV2();
+                downloadImages(responseImage);
               }}
-            />
-            {responseImage && responseImage.length > 0 && (
-              <Button
-                onClick={() => {
-                  downloadImages(responseImage);
-                }}
-                style={{
-                  backgroundColor: "#C5C5C5",
-                  color: "#000",
-                  fontWeight: "bold",
-                }}
-              >
-                Download
-              </Button>
-            )}
-            {responseImageV2 && responseImageV2.length > 0 && (
-              <Button
-                onClick={() => {
-                  downloadImages(responseImageV2);
-                }}
-                style={{
-                  backgroundColor: "#C5C5C5",
-                  color: "#000",
-                  fontWeight: "bold",
-                }}
-              >
-                Download
-              </Button>
-            )}
-            <Button style={{ color: "#000", fontWeight: "bold" }} color="warning">
-              Save
+              style={{
+                backgroundColor: "#C5C5C5",
+                color: "#000",
+                fontWeight: "bold",
+              }}
+            >
+              Download
             </Button>
-          </>
+          )}
+          {responseImageV2 && responseImageV2.length > 0 && (
+            <Button
+              onClick={() => {
+                downloadImages(responseImageV2);
+              }}
+              style={{
+                backgroundColor: "#C5C5C5",
+                color: "#000",
+                fontWeight: "bold",
+              }}
+            >
+              Download
+            </Button>
+          )}
+          <Button style={{ color: "#000", fontWeight: "bold" }} color="warning">
+            Save
+          </Button>
         </div>
       )}
-      {/* <CustomModal
-        title="Sorry"
-        content={<div> Can't download empty image please generateImage again</div>}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      /> */}
     </section>
   );
 }

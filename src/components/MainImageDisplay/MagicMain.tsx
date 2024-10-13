@@ -17,17 +17,17 @@ interface MainImageDisplayProps {
 const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }) => {
   const defaultImage = defaultIMGBase64;
   const { responseImageV2 } = useImangeResponseStore();
-  const { previewImageV2 } = useImangePreviewStore();
+  const { previewImageV2, resetMagicUploadState } = useImangePreviewStore();
   const { isLoadingWaitingResponse } = useLoadingState();
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const { paths, addPath, removePath } = useSelectionPathsStore();
+  const { paths, addPath, removePath, clearPaths } = useSelectionPathsStore();
   const [currentPath, setCurrentPath] = useState<number[][]>([]);
   const [isClosingPath, setIsClosingPath] = useState(false);
-  const { magicGeneratedState } = useMagicGeneratedStore();
-  const { magicUploadedState } = useMagicUploadedStore();
+  const { magicGeneratedState, setMagicGeneratedState } = useMagicGeneratedStore();
+  const { magicUploadedState, setMagicUploadedState } = useMagicUploadedStore();
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -57,12 +57,16 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   useEffect(() => {
     if (responseImageV2 && responseImageV2.length > 0) {
       setImagePaths(responseImageV2);
+      setMagicGeneratedState(true);
     } else if (previewImageV2 && previewImageV2.length > 0) {
       setImagePaths(previewImageV2);
+      setMagicUploadedState(true);
     } else {
       setImagePaths([defaultImage]);
+      setMagicGeneratedState(false);
+      setMagicUploadedState(false);
     }
-  }, [responseImageV2, previewImageV2]);
+  }, [responseImageV2, previewImageV2, setMagicGeneratedState, setMagicUploadedState]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -275,7 +279,9 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   return (
     <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
-      {!magicGeneratedState ? (
+      {isLoadingWaitingResponse ? (
+        <LoadingWaitingImage />
+      ) : !magicGeneratedState ? (
         !magicUploadedState ? (
           <img
             src={SrcImgForRender(imagePaths[0])}
@@ -289,22 +295,15 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             }}
           />
         ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <canvas
-              ref={canvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-                cursor: "crosshair",
-              }}
-              tabIndex={0}
-            />
-          </div>
+          <canvas
+            ref={canvasRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
+            style={{ width: "100%", height: "100%", cursor: "crosshair" }}
+            tabIndex={0}
+          />
         )
       ) : (
         <img
