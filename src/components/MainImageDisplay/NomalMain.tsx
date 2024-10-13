@@ -3,8 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import PreviewImageModal from "../PreviewImageModal";
 import { useImangeResponseStore } from "@/store/imageResponseStore";
-import { useImangePreviewStore } from "@/store/imagePreviewStoer";
-import { useGenerateClickStore } from "@/store/generateClickState";
+import { useImangePreviewStore } from "@/store/imagePreviewStore";
 import { useLoadingState } from "@/store/loadingState";
 import { Skeleton } from "@nextui-org/react";
 import LoadingWaitingImage from "../Loading/LoadingWaitingImage";
@@ -22,8 +21,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const [imageShowInModal, setImageShowInModal] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
-  const { isLoadingWaitingResponse, setIsLoadingWaitingResponse } =
-    useLoadingState();
+  const { isLoadingWaitingResponse, setIsLoadingWaitingResponse } = useLoadingState();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -43,7 +41,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
     if (responseImage && responseImage.length > 0) {
       setImagePaths(responseImage);
     } else if (previewImage && previewImage.length > 0) {
-      setImagePaths(previewImage) 
+      setImagePaths(previewImage);
     } else {
       setImagePaths([defaultImage]);
     }
@@ -84,7 +82,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
           flexWrap: "wrap",
           height: "100%",
           width: "100%",
-        //   maxWidth: "120%",
+          //   maxWidth: "120%",
           margin: "0 auto",
           alignContent: "center",
           gap: "10px",
@@ -123,13 +121,12 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                 }}
               />
             ) : (
-                <div
+              <div
                 style={{
                   display: "flex",
                   justifyContent: "center",
                   flexWrap: "wrap",
                   gap: "10px",
-                  
                 }}
               >
                 {imagePaths.map((path, index) => (
@@ -149,18 +146,11 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                   />
                 ))}
               </div>
-              
             )}
           </>
         )}
 
-        {isOpenShowImageModal && imageShowInModal && (
-          <PreviewImageModal
-            imgURL={imageShowInModal}
-            isOpen={isOpenShowImageModal}
-            setIsOpen={setIsOpenShowImageModal}
-          />
-        )}
+        {isOpenShowImageModal && imageShowInModal && <PreviewImageModal imgURL={imageShowInModal} isOpen={isOpenShowImageModal} setIsOpen={setIsOpenShowImageModal} />}
       </div>
     </div>
   );

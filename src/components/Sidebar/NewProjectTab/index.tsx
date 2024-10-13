@@ -1,18 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Checkbox,
-  divider,
-  image,
-  Select,
-  SelectItem,
-  Slider,
-  Textarea,
-} from "@nextui-org/react";
-import Upload from "@/components/Upload";
+import { Button, Checkbox, divider, image, Select, SelectItem, Slider, Textarea } from "@nextui-org/react";
+import Upload from "@/components/Upload/upload";
 import { dataInDropdown } from "./dataInDropdown";
 import generateImage from "@/services/generateImage";
-import { useImangePreviewStore } from "@/store/imagePreviewStoer";
+import { useImangePreviewStore } from "@/store/imagePreviewStore";
 import { useImangeResponseStore } from "@/store/imageResponseStore";
 import { useLoadingState } from "@/store/loadingState";
 import convertToBase64 from "@/utils/encodeFileImageToBase64";
@@ -28,11 +19,9 @@ const NewProjectTab = () => {
   const [textPrompt, setTextPrompt] = useState("");
   const [removeFurniture, setRemoveFurniture] = useState(false);
   const { originalFile } = useImangePreviewStore();
-  const { responseImage, setResponseImage, onResetResponseImageData } =
-    useImangeResponseStore();
+  const { responseImage, setResponseImage, onResetResponseImageData } = useImangeResponseStore();
   const { setIsLoadingWaitingResponse } = useLoadingState();
-  const [imageBase64ForSentToBackend, setImageBase64ForSentToBackend] =
-    useState("");
+  const [imageBase64ForSentToBackend, setImageBase64ForSentToBackend] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sliderValue, setSliderValue] = useState<number>(0.5);
 
@@ -70,12 +59,7 @@ const NewProjectTab = () => {
 
     try {
       setIsLoadingWaitingResponse(true);
-      const response = await generateImage(
-        imageBase64ForSentToBackend,
-        getTimeStampStr(),
-        promp,
-        sliderValue
-      );
+      const response = await generateImage(imageBase64ForSentToBackend, getTimeStampStr(), promp, sliderValue);
       let parsedResponse;
       if (typeof response === "string") {
         try {
@@ -88,6 +72,7 @@ const NewProjectTab = () => {
         parsedResponse = response;
       }
       if (parsedResponse && Array.isArray(parsedResponse.images)) {
+        console.log(parsedResponse.images);
         setResponseImage(parsedResponse.images);
 
         setLastImageBase64(imageBase64ForSentToBackend);
@@ -106,10 +91,7 @@ const NewProjectTab = () => {
     }
   };
 
-  const isValuesChanged =
-    lastImageBase64 !== imageBase64ForSentToBackend ||
-    imageType + roomType + style + textPrompt !== lastPrompt ||
-    sliderValue !== lastSliderValue;
+  const isValuesChanged = lastImageBase64 !== imageBase64ForSentToBackend || imageType + roomType + style + textPrompt !== lastPrompt || sliderValue !== lastSliderValue;
 
   useEffect(() => {
     console.log("clickGenImage ", clickGenImage);
@@ -143,9 +125,7 @@ const NewProjectTab = () => {
         }}
         size="md"
       >
-        <div
-          style={{ display: "flex", alignItems: "center", fontWeight: "bold" }}
-        >
+        <div style={{ display: "flex", alignItems: "center", fontWeight: "bold" }}>
           <ArrowRotateLeft size="18" color="#000" />
           <span style={{ marginLeft: "5px" }}> Generate </span>
         </div>
@@ -179,16 +159,7 @@ const NewProjectTab = () => {
         >
           <Upload />
 
-          <Select
-            variant="faded"
-            label="Image Type"
-            labelPlacement="outside"
-            placeholder=" "
-            value={imageType}
-            onChange={(e) => setImageType(e.target.value)}
-            size="md"
-            style={{ borderRadius: "8px" }}
-          >
+          <Select variant="faded" label="Image Type" labelPlacement="outside" placeholder=" " value={imageType} onChange={(e) => setImageType(e.target.value)} size="md" style={{ borderRadius: "8px" }}>
             {dataInDropdown.imageTypes.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -196,16 +167,7 @@ const NewProjectTab = () => {
             ))}
           </Select>
 
-          <Select
-            variant="faded"
-            label="Room Type"
-            labelPlacement="outside"
-            placeholder=" "
-            value={roomType}
-            onChange={(e) => setRoomType(e.target.value)}
-            size="md"
-            style={{ borderRadius: "8px" }}
-          >
+          <Select variant="faded" label="Room Type" labelPlacement="outside" placeholder=" " value={roomType} onChange={(e) => setRoomType(e.target.value)} size="md" style={{ borderRadius: "8px" }}>
             {dataInDropdown.roomTypes.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -213,16 +175,7 @@ const NewProjectTab = () => {
             ))}
           </Select>
 
-          <Select
-            variant="faded"
-            label="Style"
-            labelPlacement="outside"
-            placeholder=" "
-            value={style}
-            onChange={(e) => setStyle(e.target.value)}
-            size="md"
-            style={{ borderRadius: "8px" }}
-          >
+          <Select variant="faded" label="Style" labelPlacement="outside" placeholder=" " value={style} onChange={(e) => setStyle(e.target.value)} size="md" style={{ borderRadius: "8px" }}>
             {dataInDropdown.styles.map((s) => (
               <SelectItem key={s} value={s}>
                 {s}
@@ -230,18 +183,7 @@ const NewProjectTab = () => {
             ))}
           </Select>
 
-          <Textarea
-            placeholder=" "
-            label="Text Prompt"
-            labelPlacement="outside"
-            value={textPrompt}
-            onChange={(e) => setTextPrompt(e.target.value)}
-            minRows={6}
-            size="lg"
-            height={"100px"}
-            variant="faded"
-            style={{ borderRadius: "8px" }}
-          />
+          <Textarea placeholder=" " label="Text Prompt" labelPlacement="outside" value={textPrompt} onChange={(e) => setTextPrompt(e.target.value)} minRows={6} size="lg" height={"100px"} variant="faded" style={{ borderRadius: "8px" }} />
 
           <span>
             <strong> Denoising strength </strong> <br />
@@ -249,15 +191,7 @@ const NewProjectTab = () => {
             &nbsp; Lower keeps more of the original.
           </span>
 
-          <CustomSlider
-            step={0.1}
-            maxValue={1}
-            minValue={0}
-            thumbSize={16}
-            height={8}
-            defaultValue={sliderValue}
-            onChange={handleSliderChange}
-          />
+          <CustomSlider step={0.1} maxValue={1} minValue={0} thumbSize={16} height={8} defaultValue={sliderValue} onChange={handleSliderChange} />
         </div>
       </div>
 
@@ -274,12 +208,7 @@ const NewProjectTab = () => {
         <DisplayButtonGennerate />
       </div>
 
-      <CustomModal
-        title="Sorry"
-        content={<div> Something went wrong please try again later</div>}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <CustomModal title="Sorry" content={<div> Something went wrong please try again later</div>} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

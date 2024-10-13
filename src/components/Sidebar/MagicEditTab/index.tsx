@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { Button, Modal, Select, Textarea, SelectItem, Input } from "@nextui-org/react";
-import { useImangePreviewStore } from "@/store/imagePreviewStoer";
-import { useImangeResponseStore } from "@/store/imageResponseStore";
+import { useImangePreviewStore } from "@/store/magicImagePreviewStore";
+import { useImangeResponseStore } from "@/store/magicImageResponseStore";
 import { useLoadingState } from "@/store/loadingState";
-import { useGenerateClickStore } from "@/store/generateClickState";
-import Upload from "@/components/Upload";
+import { useMagicGeneratedStore } from "@/store/magicGeneratedState";
+import { useMagicUploadedStore } from "@/store/magicUploadedState";
+import MagicUpload from "@/components/Upload/magicUpload";
 import convertToBase64 from "@/utils/encodeFileImageToBase64";
 import { useSelectionPathsStore } from "@/store/selectionPathStore";
 import { generateOutputImage } from "@/utils/imageProcessing";
@@ -20,11 +21,11 @@ interface MagicEditTabProps {
 }
 
 const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTool }) => {
-  const { previewImage, originalFile } = useImangePreviewStore();
-  const { setResponseImage } = useImangeResponseStore();
+  const { previewImageV2, originalFileV2 } = useImangePreviewStore();
+  const { setResponseImageV2 } = useImangeResponseStore();
   const { setIsLoadingWaitingResponse } = useLoadingState();
-  const { setGenerateClickState } = useGenerateClickStore();
-  const [renderedImage, setRenderedImage] = useState<string | null>(null);
+  const { setMagicGeneratedState } = useMagicGeneratedStore();
+  const { setMagicUploadedState } = useMagicUploadedStore();
   const { paths } = useSelectionPathsStore();
   const [prompt, setPrompt] = useState<string>("");
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
@@ -34,13 +35,12 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const [editOption, setEditOption] = useState<string>("");
 
   const handleGenerate = async () => {
-    if (previewImage && previewImage.length > 0 && originalFile) {
+    if (previewImageV2 && previewImageV2.length > 0 && originalFileV2) {
       setIsLoadingWaitingResponse(true);
       try {
-        const image_base64 = await generateOutputImage(paths, previewImage[0]);
+        const image_base64 = await generateOutputImage(paths, previewImageV2[0]);
         const base64Data = image_base64.split(",")[1];
-        const base64Image = await convertToBase64(originalFile);
-        setRenderedImage(`${base64Data}`);
+        const base64Image = await convertToBase64(originalFileV2);
         const response = await axios.post("https://boar-magnetic-happily.ngrok-free.app/remove_mask", {
           // prompt: "change pillow color to red",
           image_base64: base64Image,
@@ -50,11 +50,9 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
         console.log("Response from server:", response);
 
         if (response.status === 200) {
-          const outputImage = response.data.images[0];
-          console.log("Output image received:", outputImage);
-          // setResponseImage([outputImage]);
-          setRenderedImage(`${outputImage}`);
-          console.log("Response image set to:", outputImage);
+          setMagicGeneratedState(true);
+          const outputImage = response.data.images;
+          setResponseImageV2(outputImage);
         } else {
           throw new Error("Invalid response from server");
         }
@@ -88,7 +86,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "95%" }}>
-      <Upload onUploadComplete={() => setGenerateClickState(true)} />
+      <MagicUpload onUploadComplete={() => setMagicUploadedState(true)} />
 
       <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
 
@@ -150,13 +148,6 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
       >
         Generate
       </Button>
-
-      {renderedImage && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Generated Image:</h3>
-          <img src={`data:image/png;base64,${renderedImage}`} alt="Generated" style={{ maxWidth: "100%", height: "auto" }} />
-        </div>
-      )}
     </div>
   );
 };

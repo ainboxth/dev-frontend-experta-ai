@@ -6,9 +6,7 @@ import { useSelectionTab } from "@/store/selectionTab";
 
 interface SidebarProps {
   selectedTool: "freehand" | "rubber" | "rectangle" | "point2point";
-  setSelectedTool: React.Dispatch<
-    React.SetStateAction<"freehand" | "rubber" | "rectangle" | "point2point">
-  >;
+  setSelectedTool: React.Dispatch<React.SetStateAction<"freehand" | "rubber" | "rectangle" | "point2point">>;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {
@@ -37,15 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {
         fontSize: "0.9em",
       }}
     >
-      <Tabs
-        aria-label="Sidebar Tabs"
-        onSelectionChange={(key) => handleTabChange(key.toString())}
-        color="warning"
-        variant="solid"
-        fullWidth
-        size="md"
-        className="custom-tabs"
-      >
+      <Tabs aria-label="Sidebar Tabs" onSelectionChange={(key) => handleTabChange(key.toString())} color="warning" variant="solid" fullWidth size="md" className="custom-tabs">
         <Tab key="newProject" title="New Project" />
         <Tab key="magicEdit" title="Magic Edit" />
       </Tabs>
@@ -55,15 +45,11 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTool, setSelectedTool }) => {
           flex: 1,
           height: "100%",
           marginTop: "10px",
+          overflow: "auto",
         }}
       >
         {activeTab === "newProject" && <NewProjectTab />}
-        {activeTab === "magicEdit" && (
-          <MagicEditTab
-            selectedTool={selectedTool}
-            setSelectedTool={setSelectedTool}
-          />
-        )}
+        {activeTab === "magicEdit" && <MagicEditTab selectedTool={selectedTool} setSelectedTool={setSelectedTool} />}
       </div>
     </div>
   );

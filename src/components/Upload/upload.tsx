@@ -1,7 +1,7 @@
 "use client";
 import React, { useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
-import { useImangePreviewStore } from "@/store/imagePreviewStoer";
+import { useImangePreviewStore } from "@/store/imagePreviewStore";
 import resizeImage from "@/utils/resizeImage";
 
 interface UploadProps {
@@ -11,14 +11,7 @@ interface UploadProps {
 const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
   const oldFileRef = useRef<File | null>(null);
 
-  const {
-    previewImage,
-    setPreviewImage,
-    setOriginalFile,
-    originalFile,
-    setIsOldImageSameNewImage,
-    isOldImageSameNewImage,
-  } = useImangePreviewStore();
+  const { previewImage, setPreviewImage, setOriginalFile, originalFile, setIsOldImageSameNewImage, isOldImageSameNewImage } = useImangePreviewStore();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -72,7 +65,6 @@ const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
           justifyContent: "center",
           alignItems: "center",
           cursor: "pointer",
-          
         }}
       >
         <div
@@ -94,9 +86,7 @@ const Upload: React.FC<UploadProps> = ({ onUploadComplete }) => {
           {...getRootProps({ className: "dropzone" })}
         >
           <input {...getInputProps()} />
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             <span
               style={{
                 padding: "0.5rem 1rem",

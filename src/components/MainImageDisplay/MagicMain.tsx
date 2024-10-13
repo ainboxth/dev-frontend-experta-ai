@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useImangeResponseStore } from "@/store/imageResponseStore";
-import { useImangePreviewStore } from "@/store/imagePreviewStoer";
+import { useImangeResponseStore } from "@/store/magicImageResponseStore";
+import { useImangePreviewStore } from "@/store/magicImagePreviewStore";
 import { useLoadingState } from "@/store/loadingState";
 import LoadingWaitingImage from "../Loading/LoadingWaitingImage";
 import SrcImgForRender from "@/utils/srcImgForRender";
 import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
-import { useGenerateClickStore } from "@/store/generateClickState";
-import { useSelectionPathsStore } from "@/store/selectionPathStore";
+import { useSelectionPathsStore, SelectionPath } from "@/store/selectionPathStore";
+import { useMagicGeneratedStore } from "@/store/magicGeneratedState";
+import { useMagicUploadedStore } from "@/store/magicUploadedState";
 
 interface MainImageDisplayProps {
   selectedTool: "freehand" | "rubber" | "rectangle" | "point2point";
@@ -15,17 +16,18 @@ interface MainImageDisplayProps {
 
 const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }) => {
   const defaultImage = defaultIMGBase64;
-  const { responseImage } = useImangeResponseStore();
-  const { previewImage } = useImangePreviewStore();
+  const { responseImageV2 } = useImangeResponseStore();
+  const { previewImageV2 } = useImangePreviewStore();
   const { isLoadingWaitingResponse } = useLoadingState();
-  const { generateClickState } = useGenerateClickStore();
-  const { paths, setPaths } = useSelectionPathsStore();
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const { paths, addPath, removePath } = useSelectionPathsStore();
   const [currentPath, setCurrentPath] = useState<number[][]>([]);
   const [isClosingPath, setIsClosingPath] = useState(false);
+  const { magicGeneratedState } = useMagicGeneratedStore();
+  const { magicUploadedState } = useMagicUploadedStore();
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -53,14 +55,14 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   }, [handleKeyDown]);
 
   useEffect(() => {
-    if (responseImage && responseImage.length > 0) {
-      setImagePaths(responseImage);
-    } else if (previewImage && previewImage.length > 0) {
-      setImagePaths(previewImage);
+    if (responseImageV2 && responseImageV2.length > 0) {
+      setImagePaths(responseImageV2);
+    } else if (previewImageV2 && previewImageV2.length > 0) {
+      setImagePaths(previewImageV2);
     } else {
       setImagePaths([defaultImage]);
     }
-  }, [responseImage, previewImage]);
+  }, [responseImageV2, previewImageV2]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -129,7 +131,12 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
     const canvas = canvasRef.current;
     if (canvas) {
       const { x, y } = getMousePos(canvas, e);
-      if (selectedTool === "point2point") {
+      if (selectedTool === "rubber") {
+        const clickedPath = paths.find((path) => isPointInPath(path, x, y));
+        if (clickedPath) {
+          removePath(clickedPath.id);
+        }
+      } else if (selectedTool === "point2point") {
         if (currentPath.length === 0 || isClosingPath) {
           setCurrentPath([[x, y]]);
           setIsClosingPath(false);
@@ -152,80 +159,104 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
       if (ctx) {
         const { x, y } = getMousePos(canvas, e);
 
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(offscreenCanvas, 0, 0);
+
         if (selectedTool === "freehand") {
           setCurrentPath((prev) => [...prev, [x, y]]);
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-
-          if (currentPath.length > 0) {
-            ctx.beginPath();
-            ctx.moveTo(currentPath[currentPath.length - 1][0], currentPath[currentPath.length - 1][1]);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-          }
-        } else {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(offscreenCanvas, 0, 0);
-
-          ctx.beginPath();
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-
-          if (selectedTool === "rectangle" && currentPath.length === 1) {
-            const [startX, startY] = currentPath[0];
-            ctx.rect(startX, startY, x - startX, y - startY);
-            ctx.stroke();
-          } else if (selectedTool === "point2point" && currentPath.length > 0) {
-            ctx.moveTo(currentPath[0][0], currentPath[0][1]);
-            for (let i = 1; i < currentPath.length; i++) {
-              ctx.lineTo(currentPath[i][0], currentPath[i][1]);
-            }
-            ctx.lineTo(x, y);
-          }
-          ctx.stroke();
+          drawPath(ctx, currentPath);
+        } else if (selectedTool === "rectangle" && currentPath.length === 1) {
+          drawRectangle(ctx, currentPath[0], [x, y]);
+        } else if (selectedTool === "point2point" && currentPath.length > 0) {
+          drawPath(ctx, [...currentPath, [x, y]]);
         }
       }
     }
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const { x, y } = getMousePos(canvas, e);
+    if (selectedTool !== "rubber") {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const { x, y } = getMousePos(canvas, e);
 
-      if (selectedTool === "point2point") {
-        if (currentPath.length > 2 && Math.abs(currentPath[0][0] - currentPath[currentPath.length - 1][0]) < 5 && Math.abs(currentPath[0][1] - currentPath[currentPath.length - 1][1]) < 5) {
-          setIsClosingPath(true);
-          setPaths([...paths, { type: "point2point", points: [...currentPath, currentPath[0]] }]);
-          setCurrentPath([]);
+        if (selectedTool === "point2point") {
+          if (currentPath.length > 2 && isCloseToStartPoint(currentPath[0], [x, y])) {
+            setIsClosingPath(true);
+            addPath({ id: uuidv4(), type: "point2point", points: [...currentPath, currentPath[0]] });
+            setCurrentPath([]);
+          }
+        } else if (selectedTool === "rectangle") {
+          setIsDrawing(false);
+          if (currentPath.length === 1) {
+            addPath({ id: uuidv4(), type: "rectangle", points: [...currentPath, [x, y]] });
+            setCurrentPath([]);
+          }
+        } else if (selectedTool === "freehand") {
+          setIsDrawing(false);
+          if (currentPath.length > 1) {
+            addPath({ id: uuidv4(), type: "freehand", points: currentPath });
+            setCurrentPath([]);
+          }
         }
-      } else if (selectedTool === "rectangle") {
-        setIsDrawing(false);
-        if (currentPath.length === 1) {
-          const updatedPath = [...currentPath, [x, y]];
-          setPaths([...paths, { type: "rectangle", points: updatedPath }]);
-          setCurrentPath([]);
-        }
-      } else {
-        // For freehand and other tools
-        setIsDrawing(false);
-        if (currentPath.length > 1) {
-          setPaths([...paths, { type: selectedTool, points: currentPath }]);
-          setCurrentPath([]);
-        }
+
+        updateOffscreenCanvas();
       }
+    }
+  };
 
-      // Update offscreen canvas
-      const offscreenCanvas = offscreenCanvasRef.current;
-      if (offscreenCanvas) {
-        const ctx = canvas.getContext("2d");
-        const offscreenCtx = offscreenCanvas.getContext("2d");
-        if (ctx && offscreenCtx) {
-          offscreenCtx.clearRect(0, 0, canvas.width, canvas.height);
-          offscreenCtx.drawImage(canvas, 0, 0);
+  const isPointInPath = (path: SelectionPath, x: number, y: number): boolean => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.beginPath();
+      if (path.type === "freehand" || path.type === "point2point") {
+        ctx.moveTo(path.points[0][0], path.points[0][1]);
+        for (let i = 1; i < path.points.length; i++) {
+          ctx.lineTo(path.points[i][0], path.points[i][1]);
         }
+        ctx.closePath();
+      } else if (path.type === "rectangle" && path.points.length === 2) {
+        const [start, end] = path.points;
+        ctx.rect(start[0], start[1], end[0] - start[0], end[1] - start[1]);
+      }
+      return ctx.isPointInPath(x, y);
+    }
+    return false;
+  };
+
+  const drawPath = (ctx: CanvasRenderingContext2D, points: number[][]) => {
+    ctx.beginPath();
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i][0], points[i][1]);
+    }
+    ctx.stroke();
+  };
+
+  const drawRectangle = (ctx: CanvasRenderingContext2D, start: number[], end: number[]) => {
+    ctx.beginPath();
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.rect(start[0], start[1], end[0] - start[0], end[1] - start[1]);
+    ctx.stroke();
+  };
+
+  const isCloseToStartPoint = (start: number[], current: number[], threshold = 5) => {
+    return Math.abs(start[0] - current[0]) < threshold && Math.abs(start[1] - current[1]) < threshold;
+  };
+
+  const updateOffscreenCanvas = () => {
+    const canvas = canvasRef.current;
+    const offscreenCanvas = offscreenCanvasRef.current;
+    if (canvas && offscreenCanvas) {
+      const ctx = canvas.getContext("2d");
+      const offscreenCtx = offscreenCanvas.getContext("2d");
+      if (ctx && offscreenCtx) {
+        offscreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+        offscreenCtx.drawImage(canvas, 0, 0);
       }
     }
   };
@@ -243,34 +274,53 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   return (
     <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
-      {generateClickState ? (
-        <canvas
-          ref={canvasRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
-          style={{ width: "100%", height: "100%", cursor: "crosshair" }}
-          tabIndex={0} // This makes the canvas focusable
-        />
-      ) : (
-        imagePaths.map((path, index) => (
+      {!magicGeneratedState ? (
+        !magicUploadedState ? (
           <img
-            key={index}
-            src={SrcImgForRender(path)}
-            alt={`Image ${index + 1}`}
+            src={SrcImgForRender(imagePaths[0])}
+            alt="Single Image"
             style={{
-              width: imagePaths.length === 1 ? "100%" : "calc(50% - 5px)",
-              height: imagePaths.length === 1 ? "100%" : "calc(50% - 5px)",
+              width: "100%",
+              height: "100%",
               objectFit: "contain",
+              cursor: "pointer",
               borderRadius: "8px",
-              marginBottom: index < 2 ? "0" : "10px",
             }}
           />
-        ))
+        ) : (
+          <canvas
+            ref={canvasRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
+            style={{ width: "100%", height: "100%", cursor: "crosshair" }}
+            tabIndex={0} // This makes the canvas focusable
+          />
+        )
+      ) : (
+        <img
+          src={SrcImgForRender(imagePaths[0])}
+          alt="Single Image"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            cursor: "pointer",
+            borderRadius: "8px",
+          }}
+        />
       )}
     </div>
   );
 };
 
 export default MagicMainImageDisplay;
+
+function uuidv4(): string {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
