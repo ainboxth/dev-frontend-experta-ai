@@ -24,9 +24,6 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const [imageShowInModal, setImageShowInModal] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
-<<<<<<< HEAD
-  const { isLoadingWaitingResponse, setIsLoadingWaitingResponse } = useLoadingState();
-=======
   const { isLoadingWaitingResponse } = useLoadingState();
   const [reverseAnimation, setReverseAnimation] = useState(false);
   const { responseImage, listImageBeforeShowOne, setListImageBeforeShowOne } =
@@ -34,7 +31,6 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const [location4ImageTo1ForMotion, setLocation4ImageTo1ForMotion] = useState<
     number | null
   >(null);
->>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -109,10 +105,6 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
           flexWrap: "wrap",
           height: "100%",
           width: "100%",
-<<<<<<< HEAD
-          //   maxWidth: "120%",
-=======
->>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
           margin: "0 auto",
           alignContent: "center",
           gap: "10px",
@@ -147,9 +139,6 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                   height: "100%",
                   borderRadius: "8px",
                 }}
-<<<<<<< HEAD
-              />
-=======
                 initial={getImageAnimation(
                   location4ImageTo1ForMotion,
                   reverseAnimation
@@ -209,7 +198,6 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                   />
                 </div>
               </motion.div>
->>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
             ) : (
               <div
                 style={{
@@ -219,13 +207,10 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                   justifyContent: "center",
                   alignItems: "center",
                   gap: "10px",
-<<<<<<< HEAD
-=======
                   maxWidth: "100%",
                   margin: "auto",
                   boxSizing: "border-box",
                   height: "100%",
->>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
                 }}
               >
                 {imagePaths.map((path, index) => (
