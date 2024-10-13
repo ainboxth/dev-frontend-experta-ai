@@ -73,6 +73,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
         img.onload = () => {
           canvas.width = img.width;
           canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
 
           // Create offscreen canvas
           offscreenCanvasRef.current = document.createElement("canvas");
@@ -288,15 +289,22 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             }}
           />
         ) : (
-          <canvas
-            ref={canvasRef}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
-            style={{ width: "100%", height: "100%", cursor: "crosshair" }}
-            tabIndex={0} // This makes the canvas focusable
-          />
+          <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <canvas
+              ref={canvasRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+                cursor: "crosshair",
+              }}
+              tabIndex={0}
+            />
+          </div>
         )
       ) : (
         <img
