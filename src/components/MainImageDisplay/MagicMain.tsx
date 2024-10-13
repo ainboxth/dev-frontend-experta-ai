@@ -58,6 +58,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
     if (responseImageV2 && responseImageV2.length > 0) {
       setImagePaths(responseImageV2);
       setMagicGeneratedState(true);
+      clearPaths(); // Clear existing paths when a new image is generated
     } else if (previewImageV2 && previewImageV2.length > 0) {
       setImagePaths(previewImageV2);
       setMagicUploadedState(true);
@@ -66,7 +67,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
       setMagicGeneratedState(false);
       setMagicUploadedState(false);
     }
-  }, [responseImageV2, previewImageV2, setMagicGeneratedState, setMagicUploadedState]);
+  }, [responseImageV2, previewImageV2, setMagicGeneratedState, setMagicUploadedState, clearPaths]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -91,7 +92,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             ctx.drawImage(offscreenCanvasRef.current, 0, 0);
           }
         };
-        img.src = imagePaths[0];
+        img.src = SrcImgForRender(imagePaths[0]);
       }
     }
   }, [imagePaths, paths]);
@@ -279,38 +280,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   return (
     <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
-      {!magicGeneratedState ? (
-        !magicUploadedState ? (
-          <img
-            src={SrcImgForRender(imagePaths[0])}
-            alt="Single Image"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              cursor: "pointer",
-              borderRadius: "8px",
-            }}
-          />
-        ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <canvas
-              ref={canvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-                cursor: "crosshair",
-              }}
-              tabIndex={0}
-            />
-          </div>
-        )
-      ) : (
+      {!magicUploadedState && !magicGeneratedState ? (
         <img
           src={SrcImgForRender(imagePaths[0])}
           alt="Single Image"
@@ -322,6 +292,23 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             borderRadius: "8px",
           }}
         />
+      ) : (
+        <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <canvas
+            ref={canvasRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              cursor: "crosshair",
+            }}
+            tabIndex={0}
+          />
+        </div>
       )}
     </div>
   );

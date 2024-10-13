@@ -21,7 +21,7 @@ interface MagicEditTabProps {
 }
 
 const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTool }) => {
-  const { previewImageV2, originalFileV2 } = useImangePreviewStore();
+  const { previewImageV2, originalFileV2, setPreviewImageV2, setOriginalFileV2 } = useImangePreviewStore();
   const { setResponseImageV2 } = useImangeResponseStore();
   const { setIsLoadingWaitingResponse } = useLoadingState();
   const { setMagicGeneratedState } = useMagicGeneratedStore();
@@ -62,8 +62,8 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
         if (response.status === 200) {
           setMagicGeneratedState(true);
-          const outputImage = response.data.images;
-          setResponseImageV2(outputImage);
+          const outputImage = response.data.images[0];
+          updateImageUpload(outputImage);
         } else {
           throw new Error("Invalid response from server");
         }
@@ -91,8 +91,8 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
         if (response.status === 200) {
           setMagicGeneratedState(true);
-          const outputImage = response.data.images;
-          setResponseImageV2(outputImage);
+          const outputImage = response.data.images[0]; // Assuming the first image in the array
+          updateImageUpload(outputImage);
         } else {
           throw new Error("Invalid response from server");
         }
@@ -102,6 +102,26 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
         setIsLoadingWaitingResponse(false);
       }
     }
+  };
+
+  const updateImageUpload = (base64Image: string) => {
+    // Convert base64 to blob
+    const byteCharacters = atob(base64Image);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/jpeg" });
+
+    // Create a File object
+    const file = new File([blob], "generated_image.jpg", { type: "image/jpeg" });
+
+    // Update the stores
+    setOriginalFileV2(file);
+    setPreviewImageV2([URL.createObjectURL(file)]);
+    setResponseImageV2([base64Image]);
+    setMagicUploadedState(true);
   };
 
   const handleColorSelect = (hexCode: string) => {
@@ -126,7 +146,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "95%" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
       <MagicUpload onUploadComplete={() => setMagicUploadedState(true)} />
 
       <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
