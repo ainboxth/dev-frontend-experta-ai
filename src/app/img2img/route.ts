@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { images } from "./mockData";
+import { images2 } from "./mockData2";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +9,7 @@ export async function POST(request: NextRequest) {
     const data = {
       body,
       images,
+      // images: images2,
     };
 
     return NextResponse.json(data);

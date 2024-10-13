@@ -9,19 +9,32 @@ import { Skeleton } from "@nextui-org/react";
 import LoadingWaitingImage from "../Loading/LoadingWaitingImage";
 import SrcImgForRender from "@/utils/srcImgForRender";
 import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
+import { useSidebarStage } from "@/store/sidebarStage";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import getImageAnimation from "@/utils/getImageAnimationView";
 
 interface MainImageDisplayType {}
 
 const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const defaultImage = defaultIMGBase64;
-  const { responseImage } = useImangeResponseStore();
   const { previewImage } = useImangePreviewStore();
-
+  const { isOpenSidebar } = useSidebarStage();
   const [isOpenShowImageModal, setIsOpenShowImageModal] = useState(false);
   const [imageShowInModal, setImageShowInModal] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
+<<<<<<< HEAD
   const { isLoadingWaitingResponse, setIsLoadingWaitingResponse } = useLoadingState();
+=======
+  const { isLoadingWaitingResponse } = useLoadingState();
+  const [reverseAnimation, setReverseAnimation] = useState(false);
+  const { responseImage, listImageBeforeShowOne, setListImageBeforeShowOne } =
+    useImangeResponseStore();
+  const [location4ImageTo1ForMotion, setLocation4ImageTo1ForMotion] = useState<
+    number | null
+  >(null);
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -47,16 +60,30 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
     }
   }, [responseImage, previewImage]);
 
-  const handleImageClick = (imagePath: string) => {
-    setImageShowInModal(imagePath);
-    setIsOpenShowImageModal(true);
-  };
+  // const handleImageClick = (imagePath: string) => {
+  //   setImageShowInModal(imagePath);
+  //   setIsOpenShowImageModal(true);
+  // };
 
   useEffect(() => {
     const handleResize = () => setContainerWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleImageClick = (imagePath: string) => {
+    setImagePaths([imagePath]);
+    setListImageBeforeShowOne(imagePaths);
+    setLocation4ImageTo1ForMotion(imagePaths.indexOf(imagePath));
+    setReverseAnimation(false);
+  };
+
+  const handleBackTo4Images = () => {
+    setReverseAnimation(true);
+    setTimeout(() => {
+      setImagePaths(listImageBeforeShowOne); // เปลี่ยนภาพกลับหลังจากแอนิเมชัน
+    }, 300); // ระยะเวลาของ transition animation
+  };
 
   return (
     <div
@@ -82,10 +109,14 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
           flexWrap: "wrap",
           height: "100%",
           width: "100%",
+<<<<<<< HEAD
           //   maxWidth: "120%",
+=======
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
           margin: "0 auto",
           alignContent: "center",
           gap: "10px",
+          borderRadius: "8px",
         }}
       >
         {isLoadingWaitingResponse && (
@@ -108,42 +139,119 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
         {!isLoadingWaitingResponse && (
           <>
             {imagePaths.length === 1 ? (
-              <img
-                onClick={() => handleImageClick(imagePaths[0])}
-                src={SrcImgForRender(imagePaths[0])}
-                alt="Single Image"
+              <motion.div
+                key={reverseAnimation ? "reverse" : imagePaths[0]}
                 style={{
-                  width: "100%",
+                  position: "relative",
+                  width: "fit-content",
                   height: "100%",
-                  objectFit: "contain",
-                  cursor: "pointer",
                   borderRadius: "8px",
                 }}
+<<<<<<< HEAD
               />
+=======
+                initial={getImageAnimation(
+                  location4ImageTo1ForMotion,
+                  reverseAnimation
+                )}
+                animate={
+                  reverseAnimation
+                    ? { x: 0, y: 0, opacity: 0.1, scale: 0.5 }
+                    : { x: 0, y: 0, opacity: 1, scale: 1 }
+                }
+                exit={
+                  reverseAnimation ? { x: 0, opacity: 1 } : { x: 0, opacity: 1 }
+                }
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    position: "relative",
+                    borderRadius: "8px",
+                    backgroundColor: "#181A1B",
+                  }}
+                >
+                  {listImageBeforeShowOne.length > 0 && (
+                    <button
+                      style={{
+                        position: "absolute",
+                        top: "15px",
+                        right: "15px",
+                        zIndex: 10,
+                        borderRadius: "4px",
+                      }}
+                      onClick={handleBackTo4Images}
+                    >
+                      <Image
+                        src={"/icon_tools/mini_preview.svg"}
+                        alt={"close preview"}
+                        width={25}
+                        height={25}
+                        style={{
+                          filter:
+                            "drop-shadow(0px 0px 2px #ffffff) drop-shadow(0px 0px 0.05px #ffffff50)",
+                        }}
+                      />
+                    </button>
+                  )}
+                  <img
+                    src={SrcImgForRender(imagePaths[0])}
+                    alt="Single Image"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      cursor: "default",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </div>
+              </motion.div>
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
             ) : (
               <div
                 style={{
-                  display: "flex",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gridTemplateRows: "repeat(2, 1fr)",
                   justifyContent: "center",
-                  flexWrap: "wrap",
+                  alignItems: "center",
                   gap: "10px",
+<<<<<<< HEAD
+=======
+                  maxWidth: "100%",
+                  margin: "auto",
+                  boxSizing: "border-box",
+                  height: "100%",
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
                 }}
               >
                 {imagePaths.map((path, index) => (
-                  <img
+                  <div
                     key={index}
-                    onClick={() => handleImageClick(path)}
-                    src={SrcImgForRender(path)}
-                    alt={`Image ${index + 1}`}
                     style={{
-                      width: "calc(50% - 100px)",
-                      maxHeight: "calc(50% - 5px)",
-                      objectFit: "contain",
-                      cursor: "pointer",
+                      height: "100%",
+                      overflow: "hidden",
                       borderRadius: "8px",
-                      marginBottom: index < 2 ? "0" : "10px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
-                  />
+                  >
+                    <img
+                      onClick={() => handleImageClick(path)}
+                      src={SrcImgForRender(path)}
+                      alt={`Image ${index + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
             )}

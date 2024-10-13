@@ -15,10 +15,20 @@ import { useCurrentWorkFolderStore } from "@/store/currentWorkFolder";
 import MainImageDisplay from "@/components/MainImageDisplay";
 import { downloadImages } from "@/utils/downloadPreviewImg";
 import { useImangeResponseStore } from "@/store/imageResponseStore";
+<<<<<<< HEAD
 import { useImangeResponseStore as useImangeResponseStoreV2 } from "@/store/magicImageResponseStore";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+=======
+import CustomModal from "../CustomModal";
+import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
+import { useSidebarStage } from "@/store/sidebarStage";
+
+export default function Home() {
+  const { isOpenSidebar, setIsOpenSidebar } = useSidebarStage();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
   const [selectedTool, setSelectedTool] = useState<"freehand" | "rubber" | "rectangle" | "point2point">("freehand");
   const { generateClickState, setGenerateClickState } = useGenerateClickStore();
   const { onresetData } = useImangePreviewStore();
@@ -28,7 +38,7 @@ export default function Home() {
   const { currentWorkFolder, setCurrentWorkFolder } = useCurrentWorkFolderStore();
 
   const handleSidebarToggle = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setIsOpenSidebar(!isOpenSidebar);
   };
 
   return (
@@ -62,7 +72,15 @@ export default function Home() {
         >
           <motion.div
             initial={{ width: "0", opacity: 0 }}
+<<<<<<< HEAD
             animate={isSidebarOpen ? { width: "20rem", opacity: 1 } : { width: 0, opacity: 0 }}
+=======
+            animate={
+              isOpenSidebar
+                ? { width: "20rem", opacity: 1 }
+                : { width: 0, opacity: 0 }
+            }
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
             transition={{
               width: { duration: 0.3 },
               opacity: { duration: 0.5 },
@@ -71,7 +89,7 @@ export default function Home() {
               height: "99%",
               overflow: "hidden",
               position: "relative",
-              visibility: isSidebarOpen ? "visible" : "hidden",
+              visibility: isOpenSidebar ? "visible" : "hidden",
             }}
           >
             <Sidebar selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
@@ -89,13 +107,22 @@ export default function Home() {
               cursor: "pointer",
             }}
           >
+<<<<<<< HEAD
             {isSidebarOpen ? <ArrowLeft2 size="20" color="#000" /> : <ArrowRight2 size="20" color="#000" />}
+=======
+            {isOpenSidebar ? (
+              <ArrowLeft2 size="20" color="#000" />
+            ) : (
+              <ArrowRight2 size="20" color="#000" />
+            )}
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
           </div>
         </div>
 
         <MainImageDisplay selectedTool={selectedTool} />
       </div>
 
+<<<<<<< HEAD
       <div
         style={{
           display: "flex",
@@ -108,6 +135,23 @@ export default function Home() {
         }}
       >
         {isSidebarOpen && (
+=======
+      {isOpenSidebar && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "end",
+            alignItems: "center",
+            gap: "12px",
+            padding: "24px 24px",
+            backgroundColor: "#262829",
+            height: "60px",
+            position: "sticky",
+            bottom: 0,
+            left: 0,
+          }}
+        >
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
           <>
             <Button
               isIconOnly
@@ -157,8 +201,19 @@ export default function Home() {
               Save
             </Button>
           </>
+<<<<<<< HEAD
         )}
       </div>
+=======
+        </div>
+      )}
+      {/* <CustomModal
+        title="Sorry"
+        content={<div> Can't download empty image please generateImage again</div>}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      /> */}
+>>>>>>> 85642c7681747b51f1de2a0d3c1c3b1aab74531b
     </section>
   );
 }
