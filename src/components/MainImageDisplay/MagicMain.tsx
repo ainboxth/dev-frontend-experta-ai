@@ -279,9 +279,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   return (
     <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
-      {isLoadingWaitingResponse ? (
-        <LoadingWaitingImage />
-      ) : !magicGeneratedState ? (
+      {!magicGeneratedState ? (
         !magicUploadedState ? (
           <img
             src={SrcImgForRender(imagePaths[0])}
@@ -295,15 +293,22 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             }}
           />
         ) : (
-          <canvas
-            ref={canvasRef}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
-            style={{ width: "100%", height: "100%", cursor: "crosshair" }}
-            tabIndex={0}
-          />
+          <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <canvas
+              ref={canvasRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+                cursor: "crosshair",
+              }}
+              tabIndex={0}
+            />
+          </div>
         )
       ) : (
         <img

@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Image from "next/image";
-import { Button, Modal, Select, Textarea, SelectItem, Input } from "@nextui-org/react";
+import { Button, Select, Textarea, SelectItem, Input } from "@nextui-org/react";
 import { useImangePreviewStore } from "@/store/magicImagePreviewStore";
 import { useImangeResponseStore } from "@/store/magicImageResponseStore";
 import { useLoadingState } from "@/store/loadingState";
@@ -14,6 +13,7 @@ import { generateOutputImage } from "@/utils/imageProcessing";
 import SelectionTools from "./component/SelectionTools";
 import ColorPicker from "./component/ColorPicker";
 import MaterialPicker from "./component/MeterialPicker";
+import TerminalPrompt from "./component/TerminalPrompt";
 
 interface MagicEditTabProps {
   selectedTool: "freehand" | "rubber" | "rectangle" | "point2point";
@@ -27,12 +27,26 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const { setMagicGeneratedState } = useMagicGeneratedStore();
   const { setMagicUploadedState } = useMagicUploadedStore();
   const { paths } = useSelectionPathsStore();
-  const [prompt, setPrompt] = useState<string>("");
+  const [userPrompt, setUserPrompt] = useState<string>("");
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [isMaterialPickerOpen, setIsMaterialPickerOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
   const [editOption, setEditOption] = useState<string>("");
+
+  const resetPrompt = () => {
+    setUserPrompt("");
+    setSelectedColor("");
+    setSelectedMaterial("");
+  };
+
+  const resetColor = () => {
+    setSelectedColor("");
+  };
+
+  const resetMaterial = () => {
+    setSelectedMaterial("");
+  };
 
   const handleRemove = async () => {
     if (previewImageV2 && previewImageV2.length > 0 && originalFileV2) {
@@ -96,8 +110,6 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   const handleEditOptionChange = (value: string) => {
-    setIsColorPickerOpen(false);
-    setIsMaterialPickerOpen(false);
     setEditOption(value);
   };
 
@@ -107,7 +119,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   const getCombinedPrompt = () => {
-    let combined = prompt;
+    let combined = userPrompt;
     if (selectedColor) combined += `, Color: ${selectedColor}`;
     if (selectedMaterial) combined += `, Material: ${selectedMaterial}`;
     return combined;
@@ -118,6 +130,8 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
       <MagicUpload onUploadComplete={() => setMagicUploadedState(true)} />
 
       <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
+
+      <TerminalPrompt userPrompt={userPrompt} selectedColor={selectedColor} selectedMaterial={selectedMaterial} onReset={resetPrompt} />
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", width: "100%" }}>
@@ -155,15 +169,29 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
         </div>
       </div>
 
-      {editOption === "changeColor" && <Input type="text" label="Color" placeholder="Click to choose a color" value={selectedColor} onClick={() => setIsColorPickerOpen(true)} readOnly />}
+      {editOption === "changeColor" && (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Input type="text" label="Color" placeholder="Click to choose a color" value={selectedColor} onClick={() => setIsColorPickerOpen(true)} readOnly style={{ flex: 1 }} />
+          <Button size="sm" color="warning" onClick={resetColor}>
+            Reset
+          </Button>
+        </div>
+      )}
 
       {isColorPickerOpen && <ColorPicker onColorSelect={handleColorSelect} />}
 
-      {editOption === "editMaterials" && <Input type="text" label="Material" placeholder="Click to choose a material" value={selectedMaterial} onClick={() => setIsMaterialPickerOpen(true)} readOnly />}
+      {editOption === "editMaterials" && (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Input type="text" label="Material" placeholder="Click to choose a material" value={selectedMaterial} onClick={() => setIsMaterialPickerOpen(true)} readOnly style={{ flex: 1 }} />
+          <Button size="sm" color="warning" onClick={resetMaterial}>
+            Reset
+          </Button>
+        </div>
+      )}
 
       {isMaterialPickerOpen && <MaterialPicker onMaterialSelect={handleMaterialSelect} />}
 
-      <Textarea placeholder=" " label="Text Prompt" labelPlacement="outside" value={getCombinedPrompt()} onChange={(e) => setPrompt(e.target.value)} minRows={4} size="md" variant="faded" />
+      <Textarea label="Text Prompt" labelPlacement="outside" value={userPrompt} onChange={(e) => setUserPrompt(e.target.value)} minRows={4} size="md" variant="faded" />
 
       <Button
         onClick={handleGenerate}
