@@ -12,22 +12,26 @@ import SrcImgForRender from "@/utils/srcImgForRender";
 import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
 import { useSidebarStage } from "@/store/sidebarStage";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import getImageAnimation from "@/utils/getImageAnimationView";
 
 interface MainImageDisplayType {}
 
 const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const defaultImage = defaultIMGBase64;
-  const { responseImage, listImageBeforeShowOne, setListImageBeforeShowOne } =
-    useImangeResponseStore();
   const { previewImage } = useImangePreviewStore();
   const { isOpenSidebar } = useSidebarStage();
-
   const [isOpenShowImageModal, setIsOpenShowImageModal] = useState(false);
   const [imageShowInModal, setImageShowInModal] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
-  const { isLoadingWaitingResponse, setIsLoadingWaitingResponse } =
-    useLoadingState();
+  const { isLoadingWaitingResponse } = useLoadingState();
+  const [reverseAnimation, setReverseAnimation] = useState(false);
+  const { responseImage, listImageBeforeShowOne, setListImageBeforeShowOne } =
+    useImangeResponseStore();
+  const [location4ImageTo1ForMotion, setLocation4ImageTo1ForMotion] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -53,16 +57,30 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
     }
   }, [responseImage, previewImage]);
 
-  const handleImageClick = (imagePath: string) => {
-    setImageShowInModal(imagePath);
-    setIsOpenShowImageModal(true);
-  };
+  // const handleImageClick = (imagePath: string) => {
+  //   setImageShowInModal(imagePath);
+  //   setIsOpenShowImageModal(true);
+  // };
 
   useEffect(() => {
     const handleResize = () => setContainerWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleImageClick = (imagePath: string) => {
+    setImagePaths([imagePath]);
+    setListImageBeforeShowOne(imagePaths);
+    setLocation4ImageTo1ForMotion(imagePaths.indexOf(imagePath));
+    setReverseAnimation(false);
+  };
+
+  const handleBackTo4Images = () => {
+    setReverseAnimation(true);
+    setTimeout(() => {
+      setImagePaths(listImageBeforeShowOne); // เปลี่ยนภาพกลับหลังจากแอนิเมชัน
+    }, 300); // ระยะเวลาของ transition animation
+  };
 
   return (
     <div
@@ -114,51 +132,73 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
         {!isLoadingWaitingResponse && (
           <>
             {imagePaths.length === 1 ? (
-              <div
+              <motion.div
+                key={reverseAnimation ? "reverse" : imagePaths[0]}
                 style={{
                   position: "relative",
                   width: "fit-content",
                   height: "100%",
                   borderRadius: "8px",
                 }}
-              >
-                {listImageBeforeShowOne.length > 0 && (
-                  <button
-                    style={{
-                      position: "absolute",
-                      top: "15px",
-                      right: "15px",
-                      zIndex: 10,
-                      borderRadius: "4px",
-                    }}
-                    onClick={() => {
-                      setImagePaths(listImageBeforeShowOne);
-                    }}
-                  >
-                    <Image
-                      src={"/icon_tools/mini_preview.svg"}
-                      alt={"close preview"}
-                      width={25}
-                      height={25}
-                      style={{
-                        filter:
-                          "drop-shadow(0px 0px 2px #ffffff) drop-shadow(0px 0px 0.05px #ffffff50)",
-                      }}
-                    />
-                  </button>
+                initial={getImageAnimation(
+                  location4ImageTo1ForMotion,
+                  reverseAnimation
                 )}
-                <img
-                  src={SrcImgForRender(imagePaths[0])}
-                  alt="Single Image"
+                animate={
+                  reverseAnimation
+                    ? { x: 0, y: 0, opacity: 0.1, scale: 0.5 }
+                    : { x: 0, y: 0, opacity: 1, scale: 1 }
+                }
+                exit={
+                  reverseAnimation ? { x: 0, opacity: 1 } : { x: 0, opacity: 1 }
+                }
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <div
                   style={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "contain",
-                    cursor: "default",
+                    position: "relative",
                     borderRadius: "8px",
+                    backgroundColor: "#181A1B",
                   }}
-                />
-              </div>
+                >
+                  {listImageBeforeShowOne.length > 0 && (
+                    <button
+                      style={{
+                        position: "absolute",
+                        top: "15px",
+                        right: "15px",
+                        zIndex: 10,
+                        borderRadius: "4px",
+                      }}
+                      onClick={handleBackTo4Images}
+                    >
+                      <Image
+                        src={"/icon_tools/mini_preview.svg"}
+                        alt={"close preview"}
+                        width={25}
+                        height={25}
+                        style={{
+                          filter:
+                            "drop-shadow(0px 0px 2px #ffffff) drop-shadow(0px 0px 0.05px #ffffff50)",
+                        }}
+                      />
+                    </button>
+                  )}
+                  <img
+                    src={SrcImgForRender(imagePaths[0])}
+                    alt="Single Image"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      cursor: "default",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </div>
+              </motion.div>
             ) : (
               <div
                 style={{
@@ -187,10 +227,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                     }}
                   >
                     <img
-                      onClick={() => {
-                        setImagePaths([path]);
-                        setListImageBeforeShowOne(imagePaths);
-                      }}
+                      onClick={() => handleImageClick(path)}
                       src={SrcImgForRender(path)}
                       alt={`Image ${index + 1}`}
                       style={{
