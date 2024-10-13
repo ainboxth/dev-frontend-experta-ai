@@ -5,7 +5,7 @@ import { useImangePreviewStore } from "@/store/magicImagePreviewStore";
 import resizeImage from "@/utils/resizeImage";
 
 interface UploadProps {
-  onUploadComplete?: () => void;
+    onUploadComplete?: (file: File) => void;
 }
 
 const MagicUpload: React.FC<UploadProps> = ({ onUploadComplete }) => {
@@ -33,7 +33,7 @@ const MagicUpload: React.FC<UploadProps> = ({ onUploadComplete }) => {
         setPreviewImageV2([previewUrl]);
 
         if (onUploadComplete) {
-          onUploadComplete();
+          onUploadComplete(file);
         }
       }
     },

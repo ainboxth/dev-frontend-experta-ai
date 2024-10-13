@@ -9,6 +9,7 @@ import { defaultIMGBase64 } from "../../../public/default/defaultIMG";
 import { useSelectionPathsStore, SelectionPath } from "@/store/selectionPathStore";
 import { useMagicGeneratedStore } from "@/store/magicGeneratedState";
 import { useMagicUploadedStore } from "@/store/magicUploadedState";
+import { useImageHistoryStore } from "@/store/magicImageHistoryStore";
 
 interface MainImageDisplayProps {
   selectedTool: "freehand" | "rubber" | "rectangle" | "point2point";
@@ -28,6 +29,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   const [isClosingPath, setIsClosingPath] = useState(false);
   const { magicGeneratedState, setMagicGeneratedState } = useMagicGeneratedStore();
   const { magicUploadedState, setMagicUploadedState } = useMagicUploadedStore();
+  const { imageHistory, currentImageIndex } = useImageHistoryStore();
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -71,7 +73,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (canvas && imagePaths[0] !== defaultImage) {
+    if (canvas && imageHistory.length > 0 && currentImageIndex >= 0) {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         const img = new Image();
@@ -80,7 +82,6 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
 
-          // Create offscreen canvas
           offscreenCanvasRef.current = document.createElement("canvas");
           offscreenCanvasRef.current.width = img.width;
           offscreenCanvasRef.current.height = img.height;
@@ -92,10 +93,10 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             ctx.drawImage(offscreenCanvasRef.current, 0, 0);
           }
         };
-        img.src = SrcImgForRender(imagePaths[0]);
+        img.src = SrcImgForRender(imageHistory[currentImageIndex]);
       }
     }
-  }, [imagePaths, paths]);
+  }, [imageHistory, currentImageIndex, paths]);
 
   const redrawPaths = (ctx: CanvasRenderingContext2D) => {
     paths.forEach((path) => {
@@ -282,7 +283,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
     <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
       {!magicUploadedState && !magicGeneratedState ? (
         <img
-          src={SrcImgForRender(imagePaths[0])}
+          src={SrcImgForRender(defaultImage)}
           alt="Single Image"
           style={{
             width: "100%",

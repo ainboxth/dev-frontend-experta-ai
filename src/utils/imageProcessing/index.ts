@@ -34,9 +34,15 @@ export const generateOutputImage = async (selectionPaths: Array<{ id: string; ty
         }
       });
 
+      // Convert to base64 and resolve
       resolve(canvas.toDataURL("image/png"));
     };
 
-    img.src = originalImage;
+    // Set the image source to load the dimensions
+    if (originalImage.startsWith("data:image/")) {
+      img.src = originalImage;
+    } else {
+      img.src = `data:image/jpeg;base64,${originalImage}`;
+    }
   });
 };

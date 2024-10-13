@@ -6,6 +6,7 @@ import { useImangeResponseStore } from "@/store/magicImageResponseStore";
 import { useLoadingState } from "@/store/loadingState";
 import { useMagicGeneratedStore } from "@/store/magicGeneratedState";
 import { useMagicUploadedStore } from "@/store/magicUploadedState";
+import { useImageHistoryStore } from "@/store/magicImageHistoryStore";
 import MagicUpload from "@/components/Upload/magicUpload";
 import convertToBase64 from "@/utils/encodeFileImageToBase64";
 import { useSelectionPathsStore } from "@/store/selectionPathStore";
@@ -26,6 +27,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const { setIsLoadingWaitingResponse } = useLoadingState();
   const { setMagicGeneratedState } = useMagicGeneratedStore();
   const { setMagicUploadedState } = useMagicUploadedStore();
+  const { imageHistory, currentImageIndex, addImage, setCurrentIndex, resetHistory } = useImageHistoryStore();
   const { paths } = useSelectionPathsStore();
   const [userPrompt, setUserPrompt] = useState<string>("");
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
@@ -47,16 +49,15 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const resetMaterial = () => {
     setSelectedMaterial("");
   };
-
   const handleRemove = async () => {
-    if (previewImageV2 && previewImageV2.length > 0 && originalFileV2) {
+    if (imageHistory.length > 0 && currentImageIndex >= 0) {
       setIsLoadingWaitingResponse(true);
       try {
-        const image_base64 = await generateOutputImage(paths, previewImageV2[0]);
+        const image_base64 = await generateOutputImage(paths, imageHistory[currentImageIndex]);
         const base64CustomImage = image_base64.split(",")[1];
-        const base64OriginalImage = await convertToBase64(originalFileV2);
+        const base64OriginalImage = imageHistory[currentImageIndex];
         const response = await axios.post("https://boar-magnetic-happily.ngrok-free.app/remove_mask", {
-          image_base64: base64OriginalImage,
+          image_base64: base64OriginalImage.startsWith("data:image/") ? base64OriginalImage.split(",")[1] : base64OriginalImage,
           mask_base64: base64CustomImage,
         });
 
@@ -76,22 +77,22 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   const handleGenerate = async () => {
-    if (previewImageV2 && previewImageV2.length > 0 && originalFileV2) {
+    if (imageHistory.length > 0 && currentImageIndex >= 0) {
       setIsLoadingWaitingResponse(true);
       try {
-        const image_base64 = await generateOutputImage(paths, previewImageV2[0]);
+        const image_base64 = await generateOutputImage(paths, imageHistory[currentImageIndex]);
         const base64CustomImage = image_base64.split(",")[1];
-        const base64OriginalImage = await convertToBase64(originalFileV2);
+        const base64OriginalImage = imageHistory[currentImageIndex];
         const response = await axios.post("https://boar-magnetic-happily.ngrok-free.app/inpaint2img", {
           prompt: getCombinedPrompt(),
-          image_base64: base64OriginalImage,
-          img_name: originalFileV2.name,
+          image_base64: base64OriginalImage.startsWith("data:image/") ? base64OriginalImage.split(",")[1] : base64OriginalImage,
+          img_name: `image_${currentImageIndex}.jpg`,
           mask_base64: base64CustomImage,
         });
 
         if (response.status === 200) {
           setMagicGeneratedState(true);
-          const outputImage = response.data.images[0]; // Assuming the first image in the array
+          const outputImage = response.data.images[0];
           updateImageUpload(outputImage);
         } else {
           throw new Error("Invalid response from server");
@@ -122,6 +123,9 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
     setPreviewImageV2([URL.createObjectURL(file)]);
     setResponseImageV2([base64Image]);
     setMagicUploadedState(true);
+
+    // Add to image history
+    addImage(base64Image);
   };
 
   const handleColorSelect = (hexCode: string) => {
@@ -145,9 +149,38 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
     return combined;
   };
 
+  const handlePrevious = () => {
+    if (currentImageIndex > 0) {
+      setCurrentIndex(currentImageIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentImageIndex < imageHistory.length - 1) {
+      setCurrentIndex(currentImageIndex + 1);
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
-      <MagicUpload onUploadComplete={() => setMagicUploadedState(true)} />
+      <MagicUpload
+        onUploadComplete={(file) => {
+          setMagicUploadedState(true);
+          convertToBase64(file).then((base64) => {
+            resetHistory();
+            addImage(base64);
+          });
+        }}
+      />
+
+      <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+        <Button onClick={handlePrevious} disabled={currentImageIndex <= 0}>
+          Previous
+        </Button>
+        <Button onClick={handleNext} disabled={currentImageIndex >= imageHistory.length - 1}>
+          Next
+        </Button>
+      </div>
 
       <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
 
