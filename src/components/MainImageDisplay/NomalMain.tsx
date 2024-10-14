@@ -26,8 +26,12 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
   const { isLoadingWaitingResponse } = useLoadingState();
   const [reverseAnimation, setReverseAnimation] = useState(false);
-  const { responseImage, listImageBeforeShowOne, setListImageBeforeShowOne } =
-    useImangeResponseStore();
+  const {
+    responseImage,
+    setResponseImage,
+    listImageBeforeShowOne,
+    setListImageBeforeShowOne,
+  } = useImangeResponseStore();
   const [location4ImageTo1ForMotion, setLocation4ImageTo1ForMotion] = useState<
     number | null
   >(null);
@@ -69,6 +73,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
 
   const handleImageClick = (imagePath: string) => {
     setImagePaths([imagePath]);
+    setResponseImage([imagePath]);
     setListImageBeforeShowOne(imagePaths);
     setLocation4ImageTo1ForMotion(imagePaths.indexOf(imagePath));
     setReverseAnimation(false);
@@ -78,6 +83,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
     setReverseAnimation(true);
     setTimeout(() => {
       setImagePaths(listImageBeforeShowOne);
+      setResponseImage(listImageBeforeShowOne);
     }, 500);
   };
 
@@ -243,7 +249,7 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
           </>
         )}
 
-        {isOpenShowImageModal && imageShowInModal && <PreviewImageModal imgURL={imageShowInModal} isOpen={isOpenShowImageModal} setIsOpen={setIsOpenShowImageModal} />}
+        {/* {isOpenShowImageModal && imageShowInModal && <PreviewImageModal imgURL={imageShowInModal} isOpen={isOpenShowImageModal} setIsOpen={setIsOpenShowImageModal} />} */}
       </div>
     </div>
   );
