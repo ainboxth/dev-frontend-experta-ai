@@ -77,8 +77,8 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
   const handleBackTo4Images = () => {
     setReverseAnimation(true);
     setTimeout(() => {
-      setImagePaths(listImageBeforeShowOne); // เปลี่ยนภาพกลับหลังจากแอนิเมชัน
-    }, 300); // ระยะเวลาของ transition animation
+      setImagePaths(listImageBeforeShowOne);
+    }, 500);
   };
 
   return (
@@ -145,13 +145,13 @@ const NomalMainImageDisplay: React.FC<MainImageDisplayType> = () => {
                 )}
                 animate={
                   reverseAnimation
-                    ? { x: 0, y: 0, opacity: 0.1, scale: 0.5 }
+                    ? { x: 0, y: 0, opacity: 0, scale: 1 }
                     : { x: 0, y: 0, opacity: 1, scale: 1 }
                 }
                 exit={
                   reverseAnimation ? { x: 0, opacity: 1 } : { x: 0, opacity: 1 }
                 }
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
               >
                 <div
                   style={{

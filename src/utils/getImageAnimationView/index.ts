@@ -23,10 +23,10 @@ const getImageAnimation = (location: number | null, reverseAnimation: boolean = 
           3: { ...commonProps, x: "100%", y: "100%" }
         },
         reverse: {
-          0: { ...commonPropsReverse, x: "100%", y: "100%" },
-          1: { ...commonPropsReverse, x: "-100%", y: "100%" },
-          2: { ...commonPropsReverse, x: "100%", y: "-100%" },
-          3: { ...commonPropsReverse, x: "-100%", y: "-100%" }
+          0: { ...commonPropsReverse, x: "50%", y: "50%" },
+          1: { ...commonPropsReverse, x: "-50%", y: "50%" },
+          2: { ...commonPropsReverse, x: "50%", y: "-50%" },
+          3: { ...commonPropsReverse, x: "-50%", y: "-50%" }
         }
       };
   
