@@ -280,19 +280,21 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   }
 
   return (
-    <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden" }}>
+    <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center" }}>
       {!magicUploadedState && !magicGeneratedState ? (
-        <img
-          src={SrcImgForRender(defaultImage)}
-          alt="Single Image"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            cursor: "pointer",
-            borderRadius: "8px",
-          }}
-        />
+        <div style={{  height:"100%", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "8px",backgroundColor: "#181A1B"}}>
+          <img
+            src={SrcImgForRender(defaultImage)}
+            alt="Single Image"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              cursor: "pointer",
+              borderRadius: "8px",
+            }}
+          />
+        </div>
       ) : (
         <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
           <canvas
