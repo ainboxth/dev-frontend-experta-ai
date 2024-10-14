@@ -302,6 +302,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             onMouseUp={handleMouseUp}
             onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
             style={{
+              borderRadius: "8px",
               maxWidth: "100%",
               maxHeight: "100%",
               objectFit: "contain",

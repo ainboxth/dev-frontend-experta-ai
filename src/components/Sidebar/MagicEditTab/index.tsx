@@ -144,8 +144,8 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
   const getCombinedPrompt = () => {
     let combined = userPrompt;
-    if (selectedColor) combined += `, Color: ${selectedColor}`;
-    if (selectedMaterial) combined += `, Material: ${selectedMaterial}`;
+    if (selectedColor) combined += ` Color: ${selectedColor}`;
+    if (selectedMaterial) combined += ` Material: ${selectedMaterial}`;
     return combined;
   };
 
@@ -215,6 +215,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
                 fontWeight: "bold",
               }}
               size="sm"
+              isDisabled={!paths.length}
             >
               Remove
             </Button>
@@ -255,6 +256,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           width: "100%",
         }}
         size="md"
+        isDisabled={!paths.length}
       >
         Generate
       </Button>

@@ -11,8 +11,8 @@ interface TerminalPromptProps {
 const TerminalPrompt: React.FC<TerminalPromptProps> = ({ userPrompt, selectedColor, selectedMaterial, onReset }) => {
   const getCombinedPrompt = () => {
     let combined = userPrompt;
-    if (selectedColor) combined += `, Color: ${selectedColor}`;
-    if (selectedMaterial) combined += `, Material: ${selectedMaterial}`;
+    if (selectedColor) combined += ` Color: ${selectedColor}`;
+    if (selectedMaterial) combined += ` Material: ${selectedMaterial}`;
     return combined.trim();
   };
 

@@ -18,6 +18,8 @@ import { useSelectionPathsStore } from "@/store/selectionPathStore";
 import { useMagicGeneratedStore } from "@/store/magicGeneratedState";
 import { useMagicUploadedStore } from "@/store/magicUploadedState";
 import { downloadImages } from "@/utils/downloadPreviewImg";
+import { useSelectionTab } from "@/store/selectionTab";
+import { useImageHistoryStore } from "@/store/magicImageHistoryStore";
 
 export default function Home() {
   const { isOpenSidebar, setIsOpenSidebar } = useSidebarStage();
@@ -30,6 +32,8 @@ export default function Home() {
   const { clearPaths } = useSelectionPathsStore();
   const { setMagicGeneratedState } = useMagicGeneratedStore();
   const { setMagicUploadedState } = useMagicUploadedStore();
+  const { tab } = useSelectionTab();
+  const { imageHistory, currentImageIndex } = useImageHistoryStore();
 
   const handleSidebarToggle = () => {
     setIsOpenSidebar(!isOpenSidebar);
@@ -48,6 +52,16 @@ export default function Home() {
     setMagicGeneratedState(false);
     setMagicUploadedState(false);
   };
+
+  const handleDownload = () => {
+    if (tab === "newProject" && responseImage && responseImage.length > 0) {
+      downloadImages(responseImage);
+    } else if (tab === "magicEdit" && imageHistory.length > 0 && currentImageIndex >= 0) {
+      downloadImages([imageHistory[currentImageIndex]]);
+    }
+  };
+
+  const isDownloadable = (tab === "newProject" && responseImage && responseImage.length > 0) || (tab === "magicEdit" && imageHistory.length > 0 && currentImageIndex >= 0);
 
   return (
     <section
@@ -130,11 +144,9 @@ export default function Home() {
           }}
         >
           <Button isIconOnly variant="light" startContent={<Trash size="28" color="#fff" />} onClick={handleReset} />
-          {responseImage && responseImage.length > 0 && (
+          {isDownloadable && (
             <Button
-              onClick={() => {
-                downloadImages(responseImage);
-              }}
+              onClick={handleDownload}
               style={{
                 backgroundColor: "#C5C5C5",
                 color: "#000",
@@ -144,23 +156,11 @@ export default function Home() {
               Download
             </Button>
           )}
-          {responseImageV2 && responseImageV2.length > 0 && (
-            <Button
-              onClick={() => {
-                downloadImages(responseImageV2);
-              }}
-              style={{
-                backgroundColor: "#C5C5C5",
-                color: "#000",
-                fontWeight: "bold",
-              }}
-            >
-              Download
+          {tab === "newProject" && (
+            <Button style={{ color: "#000", fontWeight: "bold" }} color="warning">
+              Save
             </Button>
           )}
-          <Button style={{ color: "#000", fontWeight: "bold" }} color="warning">
-            Save
-          </Button>
         </div>
       )}
     </section>
