@@ -11,6 +11,7 @@ import { getTimeStampStr } from "@/utils/getTimeStamp";
 import CustomModal from "@/components/CustomModal";
 import CustomSlider from "@/components/CustomSliderBar";
 import { ArrowRotateLeft } from "iconsax-react";
+import { useGenerateClickStore } from "@/store/generateClickState";
 
 const NewProjectTab = () => {
   const [imageType, setImageType] = useState("");
@@ -28,7 +29,8 @@ const NewProjectTab = () => {
   const [lastImageBase64, setLastImageBase64] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
   const [lastSliderValue, setLastSliderValue] = useState(0.5);
-  const [clickGenImage, setClickGenImage] = useState(false);
+  // const [clickGenImage, setClickGenImage] = useState(false);
+  const { generateClickState, setGenerateClickState } = useGenerateClickStore();
 
   const handleSliderChange = (value: number) => {
     setSliderValue(value);
@@ -45,7 +47,7 @@ const NewProjectTab = () => {
   }, [originalFile]);
 
   const handleSubmit = async () => {
-    setClickGenImage(true);
+    setGenerateClickState(true);
     let parts = [];
     if (imageType) parts.push(`a(n) ${imageType}`);
     else parts.push("an");
@@ -93,12 +95,12 @@ const NewProjectTab = () => {
 
   const isValuesChanged = lastImageBase64 !== imageBase64ForSentToBackend || imageType + roomType + style + textPrompt !== lastPrompt || sliderValue !== lastSliderValue;
 
-  useEffect(() => {
-    console.log("clickGenImage ", clickGenImage);
-  }, [clickGenImage]);
+  // useEffect(() => {
+  //   console.log("clickGenImage ", clickGenImage);
+  // }, [clickGenImage]);
 
   const DisplayButtonGennerate = () => {
-    return isValuesChanged || !clickGenImage ? (
+    return isValuesChanged || !generateClickState ? (
       <Button
         onClick={handleSubmit}
         color="warning"

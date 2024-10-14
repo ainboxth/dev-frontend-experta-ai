@@ -20,6 +20,7 @@ import { useMagicUploadedStore } from "@/store/magicUploadedState";
 import { downloadImages } from "@/utils/downloadPreviewImg";
 import { useSelectionTab } from "@/store/selectionTab";
 import { useImageHistoryStore } from "@/store/magicImageHistoryStore";
+import { useGenerateClickStore } from "@/store/generateClickState";
 
 export default function Home() {
   const { isOpenSidebar, setIsOpenSidebar } = useSidebarStage();
@@ -34,6 +35,7 @@ export default function Home() {
   const { setMagicUploadedState } = useMagicUploadedStore();
   const { tab } = useSelectionTab();
   const { imageHistory, currentImageIndex } = useImageHistoryStore();
+  const { setGenerateClickState } = useGenerateClickStore();
 
   const handleSidebarToggle = () => {
     setIsOpenSidebar(!isOpenSidebar);
@@ -51,7 +53,9 @@ export default function Home() {
     clearPaths();
     setMagicGeneratedState(false);
     setMagicUploadedState(false);
+    setGenerateClickState(false);
   };
+
 
   const handleDownload = () => {
     if (tab === "newProject" && responseImage && responseImage.length > 0) {
@@ -154,11 +158,6 @@ export default function Home() {
               }}
             >
               Download
-            </Button>
-          )}
-          {tab === "newProject" && (
-            <Button style={{ color: "#000", fontWeight: "bold" }} color="warning">
-              Save
             </Button>
           )}
         </div>
