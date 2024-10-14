@@ -151,9 +151,8 @@ export default function Home() {
           {isDownloadable && (
             <Button
               onClick={handleDownload}
+              color="warning"
               style={{
-                backgroundColor: "#C5C5C5",
-                color: "#000",
                 fontWeight: "bold",
               }}
             >
