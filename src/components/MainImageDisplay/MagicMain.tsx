@@ -18,7 +18,7 @@ interface MainImageDisplayProps {
 const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }) => {
   const defaultImage = defaultIMGBase64;
   const { responseImageV2 } = useImangeResponseStore();
-  const { previewImageV2, resetMagicUploadState } = useImangePreviewStore();
+  const { previewImageV2 } = useImangePreviewStore();
   const { isLoadingWaitingResponse } = useLoadingState();
   const [imagePaths, setImagePaths] = useState<string[]>([defaultImage]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,9 +31,12 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   const { magicUploadedState, setMagicUploadedState } = useMagicUploadedStore();
   const { imageHistory, currentImageIndex } = useImageHistoryStore();
 
+  const ACTIVE_COLOR = "red";
+  const COMPLETED_COLOR = "yellow";
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Enter" && selectedTool === "point2point") {
+      if (e.key === "Escape" && selectedTool === "point2point") {
         e.preventDefault();
         setCurrentPath([]);
         const canvas = canvasRef.current;
@@ -60,7 +63,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
     if (responseImageV2 && responseImageV2.length > 0) {
       setImagePaths(responseImageV2);
       setMagicGeneratedState(true);
-      clearPaths(); // Clear existing paths when a new image is generated
+      clearPaths();
     } else if (previewImageV2 && previewImageV2.length > 0) {
       setImagePaths(previewImageV2);
       setMagicUploadedState(true);
@@ -101,7 +104,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   const redrawPaths = (ctx: CanvasRenderingContext2D) => {
     paths.forEach((path) => {
       ctx.beginPath();
-      ctx.strokeStyle = "red";
+      ctx.strokeStyle = COMPLETED_COLOR; // Completed paths are always yellow
       ctx.lineWidth = 2;
       if (path.type === "freehand" && path.points.length > 0) {
         ctx.moveTo(path.points[0][0], path.points[0][1]);
@@ -169,6 +172,8 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(offscreenCanvas, 0, 0);
 
+        ctx.strokeStyle = ACTIVE_COLOR; // Active drawing is always red
+
         if (selectedTool === "freehand") {
           setCurrentPath((prev) => [...prev, [x, y]]);
           drawPath(ctx, currentPath);
@@ -234,7 +239,6 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   const drawPath = (ctx: CanvasRenderingContext2D, points: number[][]) => {
     ctx.beginPath();
-    ctx.strokeStyle = "red";
     ctx.lineWidth = 2;
     ctx.moveTo(points[0][0], points[0][1]);
     for (let i = 1; i < points.length; i++) {
@@ -245,7 +249,6 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
 
   const drawRectangle = (ctx: CanvasRenderingContext2D, start: number[], end: number[]) => {
     ctx.beginPath();
-    ctx.strokeStyle = "red";
     ctx.lineWidth = 2;
     ctx.rect(start[0], start[1], end[0] - start[0], end[1] - start[1]);
     ctx.stroke();
@@ -268,13 +271,6 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
     }
   };
 
-  if (offscreenCanvasRef.current) {
-    const offscreenCtx = offscreenCanvasRef.current.getContext("2d");
-    if (offscreenCtx) {
-      redrawPaths(offscreenCtx);
-    }
-  }
-
   if (isLoadingWaitingResponse) {
     return <LoadingWaitingImage />;
   }
@@ -282,7 +278,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
   return (
     <div style={{ flex: 1, height: "100%", marginRight: "24px", borderRadius: "8px", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center" }}>
       {!magicUploadedState && !magicGeneratedState ? (
-        <div style={{  height:"100%", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "8px",backgroundColor: "#181A1B"}}>
+        <div style={{ height: "100%", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "8px", backgroundColor: "#181A1B" }}>
           <img
             src={SrcImgForRender(defaultImage)}
             alt="Single Image"

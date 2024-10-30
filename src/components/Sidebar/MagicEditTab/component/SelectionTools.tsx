@@ -17,8 +17,8 @@ const SelectionTools: React.FC<SelectionToolsProps> = ({ selectedTool, setSelect
 
   return (
     <div style={{ width: "100%", borderRadius: "8px" }}>
-      <h2 style={{ color: "white", fontSize: "15px", marginBottom: "8px" }}>Selection Tools</h2>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <h2 style={{ color: "white", fontSize: "15px", marginBottom: "8px", textAlign: "left" }}>Selection Tools</h2>
+      <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
         {tools.map((tool) => (
           <motion.button
             key={tool.name}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { Button, Select, Textarea, SelectItem, Input } from "@nextui-org/react";
 import { useImangePreviewStore } from "@/store/magicImagePreviewStore";
@@ -22,7 +22,7 @@ interface MagicEditTabProps {
 }
 
 const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTool }) => {
-  const { previewImageV2, originalFileV2, setPreviewImageV2, setOriginalFileV2 } = useImangePreviewStore();
+  const { setPreviewImageV2, setOriginalFileV2 } = useImangePreviewStore();
   const { setResponseImageV2 } = useImangeResponseStore();
   const { setIsLoadingWaitingResponse } = useLoadingState();
   const { setMagicGeneratedState } = useMagicGeneratedStore();
@@ -49,6 +49,34 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   const resetMaterial = () => {
     setSelectedMaterial("");
   };
+
+  const handleEditOptionChange = (value: string) => {
+    // Reset all values when changing options
+    resetPrompt();
+    // Close any open pickers
+    setIsColorPickerOpen(false);
+    setIsMaterialPickerOpen(false);
+    // Set the new edit option
+    setEditOption(value);
+  };
+
+  const handleColorSelect = (hexCode: string) => {
+    setSelectedColor(hexCode);
+    setIsColorPickerOpen(false);
+  };
+
+  const handleMaterialSelect = (material: string) => {
+    setSelectedMaterial(material);
+    setIsMaterialPickerOpen(false);
+  };
+
+  const getCombinedPrompt = () => {
+    let combined = userPrompt;
+    if (selectedColor) combined += ` Color: ${selectedColor}`;
+    if (selectedMaterial) combined += ` Material: ${selectedMaterial}`;
+    return combined;
+  };
+
   const handleRemove = async () => {
     if (imageHistory.length > 0 && currentImageIndex >= 0) {
       setIsLoadingWaitingResponse(true);
@@ -106,7 +134,6 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   const updateImageUpload = (base64Image: string) => {
-    // Convert base64 to blob
     const byteCharacters = atob(base64Image);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -114,39 +141,13 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: "image/jpeg" });
-
-    // Create a File object
     const file = new File([blob], "generated_image.jpg", { type: "image/jpeg" });
 
-    // Update the stores
     setOriginalFileV2(file);
     setPreviewImageV2([URL.createObjectURL(file)]);
     setResponseImageV2([base64Image]);
     setMagicUploadedState(true);
-
-    // Add to image history
     addImage(base64Image);
-  };
-
-  const handleColorSelect = (hexCode: string) => {
-    setSelectedColor(hexCode);
-    setIsColorPickerOpen(false);
-  };
-
-  const handleEditOptionChange = (value: string) => {
-    setEditOption(value);
-  };
-
-  const handleMaterialSelect = (material: string) => {
-    setSelectedMaterial(material);
-    setIsMaterialPickerOpen(false);
-  };
-
-  const getCombinedPrompt = () => {
-    let combined = userPrompt;
-    if (selectedColor) combined += ` Color: ${selectedColor}`;
-    if (selectedMaterial) combined += ` Material: ${selectedMaterial}`;
-    return combined;
   };
 
   const handlePrevious = () => {
@@ -184,12 +185,12 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
       <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
 
-      <TerminalPrompt userPrompt={userPrompt} selectedColor={selectedColor} selectedMaterial={selectedMaterial} onReset={resetPrompt} />
+      {/* <TerminalPrompt userPrompt={userPrompt} selectedColor={selectedColor} selectedMaterial={selectedMaterial} onReset={resetPrompt} /> */}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", width: "100%" }}>
-          <div style={{ display: "flex", flexDirection: "column", width: "65%" }}>
-            <Select variant="faded" label="Option" labelPlacement="outside" placeholder="Select an option" value={editOption} size="md" onChange={(e) => handleEditOptionChange(e.target.value)}>
+          <div style={{ display: "flex", flexDirection: "column", width: "65%", marginRight: "4px" }}>
+            <Select variant="faded" label="Option" labelPlacement="outside" placeholder="Select an option" value={editOption} size="md" onChange={(e) => handleEditOptionChange(e.target.value)} style={{ borderRadius: "8px" }}>
               <SelectItem key="editObject" value="editObject">
                 Edit Object
               </SelectItem>
@@ -245,15 +246,16 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
       {isMaterialPickerOpen && <MaterialPicker onMaterialSelect={handleMaterialSelect} />}
 
-      <Textarea label="Text Prompt" labelPlacement="outside" value={userPrompt} onChange={(e) => setUserPrompt(e.target.value)} minRows={4} size="md" variant="faded" />
-
+      <Textarea label="Text Prompt" labelPlacement="outside" value={userPrompt} onChange={(e) => setUserPrompt(e.target.value)} minRows={4} size="md" variant="faded" isDisabled={editOption === "editMaterials" || editOption === "changeColor"} />
       <Button
         onClick={handleGenerate}
         color="warning"
-        className="text-black font-bold"
+        className="text-black"
         style={{
           height: "40px",
           width: "100%",
+          borderRadius: "8px",
+          fontWeight: "bold",
         }}
         size="md"
         isDisabled={!paths.length}
