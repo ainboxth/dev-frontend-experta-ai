@@ -24,7 +24,7 @@ const NewProjectTab = () => {
   const { setIsLoadingWaitingResponse } = useLoadingState();
   const [imageBase64ForSentToBackend, setImageBase64ForSentToBackend] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sliderValue, setSliderValue] = useState<number>(0.5);
+  const [sliderValue, setSliderValue] = useState<number>(0.6);
 
   const [lastImageBase64, setLastImageBase64] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
@@ -161,7 +161,16 @@ const NewProjectTab = () => {
         >
           <Upload />
 
-          <Select variant="faded" label="Image Type" labelPlacement="outside" placeholder=" " value={imageType} onChange={(e) => setImageType(e.target.value)} size="md" style={{ borderRadius: "8px" }}>
+          <Select
+            variant="faded"
+            label="Image Type"
+            labelPlacement="outside"
+            placeholder=" "
+            value={imageType}
+            onChange={(e) => setImageType(e.target.value)}
+            size="md"
+            style={{ borderRadius: "8px" }}
+          >
             {dataInDropdown.imageTypes.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -169,7 +178,16 @@ const NewProjectTab = () => {
             ))}
           </Select>
 
-          <Select variant="faded" label="Room Type" labelPlacement="outside" placeholder=" " value={roomType} onChange={(e) => setRoomType(e.target.value)} size="md" style={{ borderRadius: "8px" }}>
+          <Select
+            variant="faded"
+            label="Room Type"
+            labelPlacement="outside"
+            placeholder=" "
+            value={roomType}
+            onChange={(e) => setRoomType(e.target.value)}
+            size="md"
+            style={{ borderRadius: "8px" }}
+          >
             {dataInDropdown.roomTypes.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -177,7 +195,16 @@ const NewProjectTab = () => {
             ))}
           </Select>
 
-          <Select variant="faded" label="Style" labelPlacement="outside" placeholder=" " value={style} onChange={(e) => setStyle(e.target.value)} size="md" style={{ borderRadius: "8px" }}>
+          <Select
+            variant="faded"
+            label="Style"
+            labelPlacement="outside"
+            placeholder=" "
+            value={style}
+            onChange={(e) => setStyle(e.target.value)}
+            size="md"
+            style={{ borderRadius: "8px" }}
+          >
             {dataInDropdown.styles.map((s) => (
               <SelectItem key={s} value={s}>
                 {s}
@@ -185,7 +212,18 @@ const NewProjectTab = () => {
             ))}
           </Select>
 
-          <Textarea placeholder=" " label="Text Prompt" labelPlacement="outside" value={textPrompt} onChange={(e) => setTextPrompt(e.target.value)} minRows={6} size="lg" height={"100px"} variant="faded" style={{ borderRadius: "8px" }} />
+          <Textarea
+            placeholder=" "
+            label="Text Prompt"
+            labelPlacement="outside"
+            value={textPrompt}
+            onChange={(e) => setTextPrompt(e.target.value)}
+            minRows={6}
+            size="lg"
+            height={"100px"}
+            variant="faded"
+            style={{ borderRadius: "8px" }}
+          />
 
           <span>
             <strong> Denoising strength </strong> <br />
@@ -193,7 +231,16 @@ const NewProjectTab = () => {
             &nbsp; Lower keeps more of the original.
           </span>
 
-          <CustomSlider step={0.1} maxValue={1} minValue={0} thumbSize={16} height={8} defaultValue={sliderValue} onChange={handleSliderChange} />
+          <CustomSlider
+            step={0.01}
+            maxValue={1.00}
+            minValue={0.60}
+            thumbSize={16}
+            height={8}
+            defaultValue={sliderValue}
+            onChange={handleSliderChange}
+          />
+
         </div>
       </div>
 
@@ -210,7 +257,12 @@ const NewProjectTab = () => {
         <DisplayButtonGennerate />
       </div>
 
-      <CustomModal title="Sorry" content={<div> Something went wrong please try again later</div>} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <CustomModal
+        title="Sorry"
+        content={<div> Something went wrong please try again later</div>}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

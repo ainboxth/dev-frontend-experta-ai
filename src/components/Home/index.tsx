@@ -24,12 +24,16 @@ import { useGenerateClickStore } from "@/store/generateClickState";
 
 export default function Home() {
   const { isOpenSidebar, setIsOpenSidebar } = useSidebarStage();
-  const [selectedTool, setSelectedTool] = useState<"freehand" | "rubber" | "rectangle" | "point2point">("freehand");
+  const [selectedTool, setSelectedTool] = useState<
+    "freehand" | "rubber" | "rectangle" | "point2point"
+  >("freehand");
   const { onresetData } = useImangePreviewStore();
   const { resetMagicUploadState } = useImangePreviewStoreV2();
   const { responseImage, onResetResponseImageData } = useImangeResponseStore();
-  const { responseImageV2, onResetResponseImageDataV2 } = useImangeResponseStoreV2();
-  const { currentWorkFolder, setCurrentWorkFolder } = useCurrentWorkFolderStore();
+  const { responseImageV2, onResetResponseImageDataV2 } =
+    useImangeResponseStoreV2();
+  const { currentWorkFolder, setCurrentWorkFolder } =
+    useCurrentWorkFolderStore();
   const { clearPaths } = useSelectionPathsStore();
   const { setMagicGeneratedState } = useMagicGeneratedStore();
   const { setMagicUploadedState } = useMagicUploadedStore();
@@ -56,16 +60,21 @@ export default function Home() {
     setGenerateClickState(false);
   };
 
-
   const handleDownload = () => {
     if (tab === "newProject" && responseImage && responseImage.length > 0) {
       downloadImages(responseImage);
-    } else if (tab === "magicEdit" && imageHistory.length > 0 && currentImageIndex >= 0) {
+    } else if (
+      tab === "magicEdit" &&
+      imageHistory.length > 0 &&
+      currentImageIndex >= 0
+    ) {
       downloadImages([imageHistory[currentImageIndex]]);
     }
   };
 
-  const isDownloadable = (tab === "newProject" && responseImage && responseImage.length > 0) || (tab === "magicEdit" && imageHistory.length > 0 && currentImageIndex >= 0);
+  const isDownloadable =
+    (tab === "newProject" && responseImage && responseImage.length > 0) ||
+    (tab === "magicEdit" && imageHistory.length > 0 && currentImageIndex >= 0);
 
   return (
     <section
@@ -98,7 +107,11 @@ export default function Home() {
         >
           <motion.div
             initial={{ width: "0", opacity: 0 }}
-            animate={isOpenSidebar ? { width: "20rem", opacity: 1 } : { width: 0, opacity: 0 }}
+            animate={
+              isOpenSidebar
+                ? { width: "20rem", opacity: 1 }
+                : { width: 0, opacity: 0 }
+            }
             transition={{
               width: { duration: 0.3 },
               opacity: { duration: 0.5 },
@@ -110,7 +123,10 @@ export default function Home() {
               visibility: isOpenSidebar ? "visible" : "hidden",
             }}
           >
-            <Sidebar selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
+            <Sidebar
+              selectedTool={selectedTool}
+              setSelectedTool={setSelectedTool}
+            />
           </motion.div>
           <div
             onClick={handleSidebarToggle}
@@ -125,7 +141,11 @@ export default function Home() {
               cursor: "pointer",
             }}
           >
-            {isOpenSidebar ? <ArrowLeft2 size="20" color="#000" /> : <ArrowRight2 size="20" color="#000" />}
+            {isOpenSidebar ? (
+              <ArrowLeft2 size="20" color="#000" />
+            ) : (
+              <ArrowRight2 size="20" color="#000" />
+            )}
           </div>
         </div>
 
@@ -147,18 +167,24 @@ export default function Home() {
             left: 0,
           }}
         >
-          <Button isIconOnly variant="light" startContent={<Trash size="28" color="#fff" />} onClick={handleReset} />
-          {isDownloadable && (
-            <Button
-              onClick={handleDownload}
-              color="warning"
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              Download
-            </Button>
-          )}
+          <Button
+            isIconOnly
+            variant="light"
+            startContent={<Trash size="28" color="#fff" />}
+            onClick={handleReset}
+          />
+
+          <Button
+            disabled={!isDownloadable}
+            onClick={handleDownload}
+            color="warning"
+            style={{
+              cursor: isDownloadable ? "pointer" : "not-allowed",
+              fontWeight: "bold",
+            }}
+          >
+            Download
+          </Button>
         </div>
       )}
     </section>

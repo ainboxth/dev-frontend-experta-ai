@@ -14,10 +14,10 @@ interface CustomSliderProps {
 }
 
 const CustomSlider: React.FC<CustomSliderProps> = ({
-  minValue = 0,
-  maxValue = 1,
-  step = 0.1,
-  defaultValue = 0.5,
+  minValue = 0.60,
+  maxValue = 1.00,
+  step = 0.01,
+  defaultValue = 0.60,
   trackColor = "#333",
   fillColor = "#d9ff00",
   thumbColor = "#d9ff00",
@@ -46,7 +46,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
       const newValue = minValue + percentage * (maxValue - minValue);
 
       const roundedValue = parseFloat(
-        (Math.round(newValue / step) * step).toFixed(1)
+        (Math.round(newValue / step) * step).toFixed(2)
       );
 
       setValue((prevValue) => {
@@ -99,7 +99,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
           color: "#fff",
         }}
       >
-        {value.toFixed(1)}
+        {value.toFixed(2)}
       </div>
 
       <div

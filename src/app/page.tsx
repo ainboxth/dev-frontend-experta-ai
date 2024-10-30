@@ -16,8 +16,21 @@ export default function TP() {
         // backgroundColor: "#ffffff00",
       }}
     >
-      <div style={{ width: "100%", height: "55px", backgroundColor: "#181A1B" }}>
-        <img src="/default/logo.webp" alt="logo" style={{height: "100%", marginLeft: "8px"}}/>
+      <div
+        style={{
+          width: "100%",
+          height: "55px",
+          backgroundColor: "#181A1B",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "start",
+        }}
+      >
+        <img
+          src="/default/logo.webp"
+          alt="logo"
+          style={{ height: "75%", marginLeft: "8px" }}
+        />
       </div>
       <div style={{ width: "100%", height: "calc(95% - 55px)" }}>
         <Home />
