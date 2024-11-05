@@ -163,7 +163,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%", height: "100%", position: "relative",}}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%", height: "100%", position: "relative" }}>
       <MagicUpload
         onUploadComplete={(file) => {
           setMagicUploadedState(true);
@@ -247,10 +247,28 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
       {isMaterialPickerOpen && <MaterialPicker onMaterialSelect={handleMaterialSelect} />}
 
       <Textarea label="Text Prompt" labelPlacement="outside" value={userPrompt} onChange={(e) => setUserPrompt(e.target.value)} minRows={4} size="md" variant="faded" isDisabled={editOption === "editMaterials" || editOption === "changeColor"} />
-      
+
+      <div style={{ margin: "20px 0" }}>
+        <Button
+          onClick={handleGenerate}
+          color="warning"
+          className="text-black"
+          style={{
+            height: "40px",
+            width: "100%",
+            borderRadius: "8px",
+            fontWeight: "bold",
+          }}
+          size="md"
+          isDisabled={!paths.length}
+        >
+          Generate
+        </Button>
+      </div>
+
       <div
         style={{
-          position: "absolute",
+          position: "fixed",
           bottom: "0px",
           width: "100%",
           left: "0",
@@ -275,7 +293,6 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           Generate
         </Button>
       </div>
-      
     </div>
   );
 };
