@@ -275,6 +275,8 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           padding: "10px 0",
           backgroundColor: "#181A1B",
           zIndex: 1000,
+          display: "flex",
+          justifyContent: "center",
         }}
       >
         <Button
@@ -283,7 +285,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           className="text-black"
           style={{
             height: "40px",
-            width: "100%",
+            width: "90%",
             borderRadius: "8px",
             fontWeight: "bold",
           }}
