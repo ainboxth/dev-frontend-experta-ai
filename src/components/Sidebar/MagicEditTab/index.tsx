@@ -163,113 +163,113 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%", height: "100%", position: "relative" }}>
-      <MagicUpload
-        onUploadComplete={(file) => {
-          setMagicUploadedState(true);
-          convertToBase64(file).then((base64) => {
-            resetHistory();
-            addImage(base64);
-          });
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "15px",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        paddingBottom: "70px", // Add padding to account for fixed button
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+          width: "100%",
+          overflow: "auto",
         }}
-      />
+      >
+        <MagicUpload
+          onUploadComplete={(file) => {
+            setMagicUploadedState(true);
+            convertToBase64(file).then((base64) => {
+              resetHistory();
+              addImage(base64);
+            });
+          }}
+        />
 
-      <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-        <Button onClick={handlePrevious} disabled={currentImageIndex <= 0}>
-          Previous
-        </Button>
-        <Button onClick={handleNext} disabled={currentImageIndex >= imageHistory.length - 1}>
-          Next
-        </Button>
-      </div>
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+          <Button onClick={handlePrevious} disabled={currentImageIndex <= 0}>
+            Previous
+          </Button>
+          <Button onClick={handleNext} disabled={currentImageIndex >= imageHistory.length - 1}>
+            Next
+          </Button>
+        </div>
 
-      <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
+        <SelectionTools selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
 
-      {/* <TerminalPrompt userPrompt={userPrompt} selectedColor={selectedColor} selectedMaterial={selectedMaterial} onReset={resetPrompt} /> */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", width: "65%", marginRight: "4px" }}>
+              <Select variant="faded" label="Option" labelPlacement="outside" placeholder="Select an option" value={editOption} size="md" onChange={(e) => handleEditOptionChange(e.target.value)} style={{ borderRadius: "8px" }}>
+                <SelectItem key="editObject" value="editObject">
+                  Edit Object
+                </SelectItem>
+                <SelectItem key="editMaterials" value="editMaterials">
+                  Edit Materials
+                </SelectItem>
+                <SelectItem key="changeColor" value="changeColor">
+                  Change Color
+                </SelectItem>
+              </Select>
+            </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", width: "100%" }}>
-          <div style={{ display: "flex", flexDirection: "column", width: "65%", marginRight: "4px" }}>
-            <Select variant="faded" label="Option" labelPlacement="outside" placeholder="Select an option" value={editOption} size="md" onChange={(e) => handleEditOptionChange(e.target.value)} style={{ borderRadius: "8px" }}>
-              <SelectItem key="editObject" value="editObject">
-                Edit Object
-              </SelectItem>
-              <SelectItem key="editMaterials" value="editMaterials">
-                Edit Materials
-              </SelectItem>
-              <SelectItem key="changeColor" value="changeColor">
-                Change Color
-              </SelectItem>
-            </Select>
+            <div style={{ display: "flex", flexDirection: "column", width: "35%" }}>
+              <label style={{ fontSize: "0.875rem", color: "white", marginBottom: "4px" }}>Magic Eraser</label>
+              <Button
+                onClick={handleRemove}
+                color="warning"
+                style={{
+                  height: "40px",
+                  width: "100%",
+                  backgroundColor: "#FFD600",
+                  color: "black",
+                  fontWeight: "bold",
+                }}
+                size="sm"
+                isDisabled={!paths.length}
+              >
+                Remove
+              </Button>
+            </div>
           </div>
+        </div>
 
-          <div style={{ display: "flex", flexDirection: "column", width: "35%" }}>
-            <label style={{ fontSize: "0.875rem", color: "white", marginBottom: "4px" }}>Magic Eraser</label>
-            <Button
-              onClick={handleRemove}
-              color="warning"
-              style={{
-                height: "40px",
-                width: "100%",
-                backgroundColor: "#FFD600",
-                color: "black",
-                fontWeight: "bold",
-              }}
-              size="sm"
-              isDisabled={!paths.length}
-            >
-              Remove
+        {editOption === "changeColor" && (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Input type="text" label="Color" placeholder="Click to choose a color" value={selectedColor} onClick={() => setIsColorPickerOpen(true)} readOnly style={{ flex: 1 }} />
+            <Button size="sm" color="warning" onClick={resetColor}>
+              Reset
             </Button>
           </div>
-        </div>
-      </div>
+        )}
 
-      {editOption === "changeColor" && (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Input type="text" label="Color" placeholder="Click to choose a color" value={selectedColor} onClick={() => setIsColorPickerOpen(true)} readOnly style={{ flex: 1 }} />
-          <Button size="sm" color="warning" onClick={resetColor}>
-            Reset
-          </Button>
-        </div>
-      )}
+        {isColorPickerOpen && <ColorPicker onColorSelect={handleColorSelect} />}
 
-      {isColorPickerOpen && <ColorPicker onColorSelect={handleColorSelect} />}
+        {editOption === "editMaterials" && (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Input type="text" label="Material" placeholder="Click to choose a material" value={selectedMaterial} onClick={() => setIsMaterialPickerOpen(true)} readOnly style={{ flex: 1 }} />
+            <Button size="sm" color="warning" onClick={resetMaterial}>
+              Reset
+            </Button>
+          </div>
+        )}
 
-      {editOption === "editMaterials" && (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Input type="text" label="Material" placeholder="Click to choose a material" value={selectedMaterial} onClick={() => setIsMaterialPickerOpen(true)} readOnly style={{ flex: 1 }} />
-          <Button size="sm" color="warning" onClick={resetMaterial}>
-            Reset
-          </Button>
-        </div>
-      )}
+        {isMaterialPickerOpen && <MaterialPicker onMaterialSelect={handleMaterialSelect} />}
 
-      {isMaterialPickerOpen && <MaterialPicker onMaterialSelect={handleMaterialSelect} />}
-
-      <Textarea label="Text Prompt" labelPlacement="outside" value={userPrompt} onChange={(e) => setUserPrompt(e.target.value)} minRows={4} size="md" variant="faded" isDisabled={editOption === "editMaterials" || editOption === "changeColor"} />
-
-      <div style={{ margin: "20px 0" }}>
-        <Button
-          onClick={handleGenerate}
-          color="warning"
-          className="text-black"
-          style={{
-            height: "40px",
-            width: "100%",
-            borderRadius: "8px",
-            fontWeight: "bold",
-          }}
-          size="md"
-          isDisabled={!paths.length}
-        >
-          Generate
-        </Button>
+        <Textarea label="Text Prompt" labelPlacement="outside" value={userPrompt} onChange={(e) => setUserPrompt(e.target.value)} minRows={4} size="md" variant="faded" isDisabled={editOption === "editMaterials" || editOption === "changeColor"} />
       </div>
 
       <div
         style={{
           position: "fixed",
-          bottom: "0px",
+          bottom: "0",
           width: "100%",
           left: "0",
           padding: "10px 0",
