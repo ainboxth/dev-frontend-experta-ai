@@ -249,7 +249,7 @@ const NewProjectTab = () => {
           position: "sticky",
           bottom: "0px",
           left: "0",
-          padding: "10px 0",
+          paddingTop: "15px",
           backgroundColor: "#181A1B",
           zIndex: 1000,
         }}

@@ -171,7 +171,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
         width: "100%",
         height: "100%",
         position: "relative",
-        paddingBottom: "70px", // Add padding to account for fixed button
+        // paddingBottom: "70px", // Add padding to account for fixed button
       }}
     >
       <div
@@ -180,6 +180,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           flexDirection: "column",
           gap: "15px",
           width: "100%",
+          height: "100%",
           overflow: "auto",
         }}
       >
@@ -268,11 +269,11 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
 
       <div
         style={{
-          position: "fixed",
-          bottom: "0",
+          position: "sticky",
+          bottom: "0px",
           width: "100%",
           left: "0",
-          padding: "10px 0",
+          // padding: "10px 0",
           backgroundColor: "#181A1B",
           zIndex: 1000,
           display: "flex",
@@ -285,7 +286,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({ selectedTool, setSelectedTo
           className="text-black"
           style={{
             height: "40px",
-            width: "90%",
+            width: "100%",
             borderRadius: "8px",
             fontWeight: "bold",
           }}
