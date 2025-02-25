@@ -23,6 +23,32 @@ export async function POST(req: NextRequest) {
   const image = `data:application/octet-stream;base64,${imageBase64}`;
   const mask = `data:application/octet-stream;base64,${maskBase64}`;
 
+  const validateRequestBody = (body: {
+    useFor?: string;
+    imageBase64?: string;
+    maskBase64?: string;
+    prompt?: string;
+  }) => {
+    const missingFields = [];
+    if (!body.useFor) missingFields.push("useFor");
+    if (!body.imageBase64) missingFields.push("imageBase64");
+    if (
+      (body.useFor === "magic_genImage" || body.useFor === "normal_genImage") &&
+      !body.prompt
+    )
+      missingFields.push("prompt");
+    if (
+      (body.useFor === "magic_genImage" ||
+        body.useFor === "magic_removeMask") &&
+      !body.maskBase64
+    )
+      missingFields.push("maskBase64");
+    if (missingFields.length > 0) {
+      return { error: `Missing required fields: ${missingFields.join(", ")}` };
+    }
+    return null;
+  };
+
   const useModel = (model: "dev" | "pro" | "delete") => {
     let model_name:
       | "black-forest-labs/flux-fill-dev"
@@ -63,12 +89,11 @@ export async function POST(req: NextRequest) {
     return { model_name, model_input };
   };
 
-  const validate = validateRequestBody(body);
-  if (validate) {
-    return NextResponse.json(validate, { status: 400 });
-  }
-
   try {
+    const validate = validateRequestBody(body);
+    if (validate) {
+      throw new Error(JSON.stringify(validate));
+    }
     const model = useFor === "magic_removeMask" ? "delete" : "dev";
     const { model_name, model_input: input } = useModel(model);
 
@@ -80,7 +105,7 @@ export async function POST(req: NextRequest) {
       const response = await replicate.run(model_name, {
         input,
       });
-      imageResponse = await convertImageToBase64(response);
+      imageResponse = await convertImageToBase64(response as any);
     }
 
     return NextResponse.json([imageResponse], {
@@ -103,29 +128,4 @@ const convertImageToBase64 = async (imageUrl: string): Promise<string> => {
   } catch (error) {
     throw new Error("Failed to convert image to base64");
   }
-};
-
-export const validateRequestBody = (body: {
-  useFor?: string;
-  imageBase64?: string;
-  maskBase64?: string;
-  prompt?: string;
-}) => {
-  const missingFields = [];
-  if (!body.useFor) missingFields.push("useFor");
-  if (!body.imageBase64) missingFields.push("imageBase64");
-  if (
-    (body.useFor === "magic_genImage" || body.useFor === "normal_genImage") &&
-    !body.prompt
-  )
-    missingFields.push("prompt");
-  if (
-    (body.useFor === "magic_genImage" || body.useFor === "magic_removeMask") &&
-    !body.maskBase64
-  )
-    missingFields.push("maskBase64");
-  if (missingFields.length > 0) {
-    return { error: `Missing required fields: ${missingFields.join(", ")}` };
-  }
-  return null;
 };
