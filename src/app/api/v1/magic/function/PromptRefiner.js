@@ -11,7 +11,7 @@ const prompt_refiner = async (prompt) => {
         steps: z.array(reasoning_step),
         final_result: z.string(),
     });
-    const openai = new OpenAI({ apiKey: "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" });
+    const openai = new OpenAI({ apiKey: "" });
     const completion = await openai.beta.chat.completions.parse({
         model: "gpt-4o-mini",
         messages: [
