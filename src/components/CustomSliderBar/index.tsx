@@ -14,10 +14,10 @@ interface CustomSliderProps {
 }
 
 const CustomSlider: React.FC<CustomSliderProps> = ({
-  minValue = 0.60,
-  maxValue = 1.00,
+  minValue = 1,
+  maxValue = 10,
   step = 0.01,
-  defaultValue = 0.60,
+  defaultValue = 3,
   trackColor = "#333",
   fillColor = "#d9ff00",
   thumbColor = "#d9ff00",

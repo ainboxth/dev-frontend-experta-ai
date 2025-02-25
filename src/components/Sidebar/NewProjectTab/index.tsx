@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Button, Checkbox, divider, image, Select, SelectItem, Slider, Textarea } from "@nextui-org/react";
 import Upload from "@/components/Upload/upload";
 import { dataInDropdown } from "./dataInDropdown";
-import generateImage from "@/services/generateImage";
 import { useImangePreviewStore } from "@/store/imagePreviewStore";
 import { useImangeResponseStore } from "@/store/imageResponseStore";
 import { useLoadingState } from "@/store/loadingState";
@@ -12,6 +11,7 @@ import CustomModal from "@/components/CustomModal";
 import CustomSlider from "@/components/CustomSliderBar";
 import { ArrowRotateLeft } from "iconsax-react";
 import { useGenerateClickStore } from "@/store/generateClickState";
+import { normalGenerateImage } from "@/services/generateImage";
 
 const NewProjectTab = () => {
   const [imageType, setImageType] = useState("");
@@ -24,7 +24,7 @@ const NewProjectTab = () => {
   const { setIsLoadingWaitingResponse } = useLoadingState();
   const [imageBase64ForSentToBackend, setImageBase64ForSentToBackend] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sliderValue, setSliderValue] = useState<number>(0.6);
+  const [sliderValue, setSliderValue] = useState<number>(8);
 
   const [lastImageBase64, setLastImageBase64] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
@@ -51,7 +51,7 @@ const NewProjectTab = () => {
     let parts = [];
     if (imageType) parts.push(`a(n) ${imageType}`);
     else parts.push("an");
-    if (roomType) parts.push(`${roomType} room`);
+    if (roomType) parts.push(`${roomType} room types`);
     else parts.push("room");
     if (style) parts.push(`in the ${style} style`);
     if (textPrompt) parts.push(`featuring ${textPrompt}`);
@@ -61,35 +61,25 @@ const NewProjectTab = () => {
 
     try {
       setIsLoadingWaitingResponse(true);
-      const response = await generateImage(imageBase64ForSentToBackend, getTimeStampStr(), promp, sliderValue);
-      let parsedResponse;
-      if (typeof response === "string") {
-        try {
-          parsedResponse = JSON.parse(response);
-        } catch (error) {
-          console.error("Error parsing response JSON:", error);
-          return;
-        }
-      } else {
-        parsedResponse = response;
-      }
-      if (parsedResponse && Array.isArray(parsedResponse.images)) {
-        console.log(parsedResponse.images);
-        setResponseImage(parsedResponse.images);
-
+      const response = await normalGenerateImage(imageBase64ForSentToBackend, getTimeStampStr(), promp, sliderValue);
+      
+      if (response.length > 0) {
+        console.log(response);
+        
+        setResponseImage(response);
         setLastImageBase64(imageBase64ForSentToBackend);
         setLastPrompt(imageType + roomType + style + textPrompt);
         setLastSliderValue(sliderValue);
-        console.log("ตอนนี้ควรจะเซ็ตค่าเ่าไปแล้วนะ");
 
         setIsLoadingWaitingResponse(false);
       } else {
         setIsModalOpen(true);
-        setIsLoadingWaitingResponse(false);
+        console.log("Error generating output image");
       }
     } catch (error) {
       setIsModalOpen(true);
       setIsLoadingWaitingResponse(false);
+      console.log("Error generating output image:", error);
     }
   };
 
@@ -233,8 +223,8 @@ const NewProjectTab = () => {
 
           <CustomSlider
             step={0.01}
-            maxValue={1.00}
-            minValue={0.60}
+            maxValue={10}
+            minValue={6}
             thumbSize={16}
             height={8}
             defaultValue={sliderValue}

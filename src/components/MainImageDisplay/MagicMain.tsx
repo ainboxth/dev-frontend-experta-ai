@@ -147,10 +147,20 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
           removePath(clickedPath.id);
         }
       } else if (selectedTool === "point2point") {
-        if (currentPath.length === 0 || isClosingPath) {
+        // Check if we're closing a path
+        if (currentPath.length > 2 && isCloseToStartPoint(currentPath[0], [x, y])) {
+          // Close the path
+          addPath({ id: uuidv4(), type: "point2point", points: [...currentPath, currentPath[0]] });
+          setCurrentPath([]); // Reset current path
+          setIsClosingPath(false); // Reset the closing state
+        } 
+        // Start a new path only if there's no active path or we're not in the middle of a path
+        else if (currentPath.length === 0) {
           setCurrentPath([[x, y]]);
           setIsClosingPath(false);
-        } else {
+        } 
+        // Continue adding points to the current path
+        else {
           setCurrentPath([...currentPath, [x, y]]);
         }
       } else {
@@ -192,13 +202,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
       if (canvas) {
         const { x, y } = getMousePos(canvas, e);
 
-        if (selectedTool === "point2point") {
-          if (currentPath.length > 2 && isCloseToStartPoint(currentPath[0], [x, y])) {
-            setIsClosingPath(true);
-            addPath({ id: uuidv4(), type: "point2point", points: [...currentPath, currentPath[0]] });
-            setCurrentPath([]);
-          }
-        } else if (selectedTool === "rectangle") {
+        if (selectedTool === "rectangle") {
           setIsDrawing(false);
           if (currentPath.length === 1) {
             addPath({ id: uuidv4(), type: "rectangle", points: [...currentPath, [x, y]] });
@@ -254,7 +258,7 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
     ctx.stroke();
   };
 
-  const isCloseToStartPoint = (start: number[], current: number[], threshold = 5) => {
+  const isCloseToStartPoint = (start: number[], current: number[], threshold = 10) => {
     return Math.abs(start[0] - current[0]) < threshold && Math.abs(start[1] - current[1]) < threshold;
   };
 
@@ -298,7 +302,6 @@ const MagicMainImageDisplay: React.FC<MainImageDisplayProps> = ({ selectedTool }
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-            onClick={selectedTool === "point2point" ? handleMouseDown : undefined}
             style={{
               borderRadius: "8px",
               maxWidth: "100%",

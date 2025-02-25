@@ -34,10 +34,14 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number) => {
 
         canvas.toBlob((blob) => {
           if (blob) {
-            const resizedFile = new File([blob], file.name, {
-              type: file.type,
-              lastModified: Date.now(),
-            });
+            const resizedFile = new File(
+              [blob],
+              file.name.replace(/\.[^/.]+$/, ".png"),
+              {
+                type: "image/png",
+                lastModified: Date.now(),
+              }
+            );
             resolve(resizedFile);
           } else {
             reject(new Error("Failed to resize image"));

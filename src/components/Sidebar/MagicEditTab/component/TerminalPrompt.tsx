@@ -12,7 +12,7 @@ const TerminalPrompt: React.FC<TerminalPromptProps> = ({ userPrompt, selectedCol
   const getCombinedPrompt = () => {
     let combined = userPrompt;
     if (selectedColor) combined += ` Color: ${selectedColor}`;
-    if (selectedMaterial) combined += ` Material: ${selectedMaterial}`;
+    if (selectedMaterial) combined += `Change Material to ${selectedMaterial}`;
     return combined.trim();
   };
 
