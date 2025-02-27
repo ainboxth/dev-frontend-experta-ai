@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import Replicate from "replicate";
+import { prompt_refiner } from "../magic/function/PromptRefiner";
 const replicate = new Replicate();
 
 export async function POST(req: NextRequest) {
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
     let model_input = {};
     const input = {
       image: control_image,
-      prompt: prompt,
+      prompt: prompt_refiner(prompt) ?? prompt,
       go_fast: true,
       guidance: 6,
       megapixels: "1",
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
       num_inference_steps: 28,
     };
     const input_deep = {
-      prompt: prompt,
+      prompt: prompt_refiner(prompt) ?? prompt,
       guidance: Number(value),
       megapixels: "1",
       num_outputs: 4,

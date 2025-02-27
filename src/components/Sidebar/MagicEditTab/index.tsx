@@ -121,7 +121,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({
           paths,
           imageHistory[currentImageIndex]
         );
-  
+
         const maskBase64 = image_base64.split(",")[1];
         const imageBase64 = imageHistory[currentImageIndex];
         const responseImage = await magicGenerateImage(
@@ -129,7 +129,7 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({
           imageBase64,
           maskBase64,
           `image_${currentImageIndex}.png`,
-          selectedColor,
+          selectedColor
         );
 
         setMagicGeneratedState(true);
@@ -345,18 +345,20 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({
           <MaterialPicker onMaterialSelect={handleMaterialSelect} />
         )}
 
-        <Textarea
-          label="Text Prompt"
-          labelPlacement="outside"
-          value={userPrompt}
-          onChange={(e) => setUserPrompt(e.target.value)}
-          minRows={4}
-          size="md"
-          variant="faded"
-          isDisabled={
-            editOption === "editMaterials" || editOption === "changeColor"
-          }
-        />
+        {editOption !== "editMaterials" && editOption !== "changeColor" ? (
+          <Textarea
+            label="Text Prompt"
+            labelPlacement="outside"
+            value={userPrompt}
+            onChange={(e) => setUserPrompt(e.target.value)}
+            minRows={4}
+            size="md"
+            variant="faded"
+            isDisabled={
+              editOption === "editMaterials" || editOption === "changeColor"
+            }
+          />
+        ) : null}
       </div>
 
       <div

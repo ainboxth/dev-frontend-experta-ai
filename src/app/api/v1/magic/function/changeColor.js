@@ -3,8 +3,6 @@ import fetch from "node-fetch";
 import { fal } from "@fal-ai/client";
 
 // Constants for magic numbers and strings - improves readability and maintainability
-
-const OUTPUT_IMAGE_NAME = "outputjs.png";
 const JPEG_FORMAT = "jpeg"; // sharp uses 'jpeg'
 const DEFAULT_GAUSSIAN_BLUR_RADIUS = 1.5;
 const NEAR_WHITE_THRESHOLD = 230;
@@ -54,11 +52,11 @@ async function upload_image(image_base64) {
    * Raises:
    *     FileUploadError: If there is an error during file upload.
    */
-   try {
-   const tempFile = Buffer.from(image_base64, 'base64');
-   const image_path = './temp_image.png';
-   await sharp(tempFile).toFile(image_path);
-   const url = await fal.storage.upload(new File([await sharp(image_path).toBuffer()], 'temp_image.png'));
+  try {
+    const imageBuffer = Buffer.from(image_base64, 'base64');
+    // Create a File object directly from the buffer
+    const file = new File([imageBuffer], 'temp_image.png');
+    const url = await fal.storage.upload(file);
     return url;
   } catch (e) {
     throw new FileUploadError(`Error uploading image: ${e}`);
@@ -120,15 +118,14 @@ async function estimate_bounding_box(imageBuffer) {
   }
 }
 
-async function get_segment(coordinate, image_base64
-) {
+async function get_segment(coordinate, image_base64) {
   /**
    * Retrieves image segment using fal_client's sam2 model based on bounding box coordinates.
    *
    * Args:
    *     coordinate: A list of two lists, representing the top-left and bottom-right
    *                 coordinates of the bounding box: [[x_min, y_min], [x_max, y_max]].
-   *     image_path: Path to the original image file.
+   *     image_base64: Base64-encoded image data.
    *
    * Returns:
    *     The result dictionary from fal_client.subscribe, containing segmentation information.
@@ -198,20 +195,21 @@ function hex_to_rgb(hex_color) {
 }
 
 async function change_color_in_mask_overlay_photoshop(
-   base64_image,
+  image_buffer,
   mask_url,
-  hex_target_color,
-  output_path
+  hex_target_color
 ) {
   /**
    * Changes the color of a masked overlay in an image, mimicking Photoshop-like blending.
    *
    * Args:
-   *     image_path: Path to the original image.
+   *     image_buffer: Buffer containing the original image.
    *     mask_url: URL of the mask image.
    *     hex_target_color: Hexadecimal color code for the target color.
-   *     output_path: Path to save the output image.
    *
+   * Returns:
+   *     Buffer containing the processed image.
+   * 
    * Raises:
    *     ImageProcessingError: For errors during image loading, mask processing, or blending.
    */
@@ -227,11 +225,11 @@ async function change_color_in_mask_overlay_photoshop(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const maskBuffer = await response.arrayBuffer();
-      const mask = sharp(maskBuffer)
+      const mask = sharp(Buffer.from(maskBuffer))
         .greyscale()
         .blur(DEFAULT_GAUSSIAN_BLUR_RADIUS)
         .raw();
-      const maskMetadata = await sharp(maskBuffer).metadata();
+      const maskMetadata = await sharp(Buffer.from(maskBuffer)).metadata();
 
       if (
         imageMetadata.width !== maskMetadata.width ||
@@ -369,7 +367,7 @@ async function change_color_in_mask_overlay_photoshop(
       image: imageData,
       mask: maskData,
       metadata,
-    } = await _load_image_and_mask(base64_image, mask_url);
+    } = await _load_image_and_mask(image_buffer, mask_url);
     const target_color_rgb = hex_to_rgb(hex_target_color);
     const blend_mode = _determine_blend_mode(target_color_rgb);
     const processedImageData = await _apply_color_blending(
@@ -379,27 +377,24 @@ async function change_color_in_mask_overlay_photoshop(
       target_color_rgb,
       blend_mode
     );
-    let buffer_data = await sharp(processedImageData.data, {
+
+    // Convert processed data to a buffer without saving to file
+    const outputBuffer = await sharp(processedImageData.data, {
       raw: {
-      width: metadata.width,
-      height: metadata.height,
-      channels: processedImageData.info.channels,
+        width: metadata.width,
+        height: metadata.height,
+        channels: processedImageData.info.channels,
       },
-    })
-      .toFormat(JPEG_FORMAT)
-      .toBuffer();
+    }).toFormat(JPEG_FORMAT).toBuffer();
 
-    await sharp(buffer_data).toFile(output_path);
-    
-    // If you need base64, you can convert the buffer like this:
-    const base64Data = buffer_data.toString('base64');
-    console.log(`Auto-selected '${blend_mode}' mode. Output: ${output_path}`);
-
-    return base64Data;
+    console.log(`Auto-selected '${blend_mode}' mode.`);
+    return outputBuffer;
   } catch (e) {
-    console.error(`Image processing failed: ${e}`); // Or re-raise for higher level handling
+    console.error(`Image processing failed: ${e}`);
+    throw new ImageProcessingError(`Image processing failed: ${e}`);
   }
 }
+
 export async function ImgChangeColor(original_image_base64, masked_image_base64, target) {
   const original_image_buffer = Buffer.from(original_image_base64, "base64");
   const masked_image_buffer = Buffer.from(masked_image_base64, "base64");
@@ -415,15 +410,17 @@ export async function ImgChangeColor(original_image_base64, masked_image_base64,
         original_image_base64
       );
       const masked_refined_url = result.image.url;
-      
-      const buffer_base64 = await change_color_in_mask_overlay_photoshop(
+
+      const outputBuffer = await change_color_in_mask_overlay_photoshop(
         original_image_buffer,
         masked_refined_url,
-        target,
-        OUTPUT_IMAGE_NAME
+        target
       );
-      return buffer_base64;
+
+      // Return base64 string of the buffer
+      return outputBuffer.toString('base64');
     }
+    return null;
   } catch (e) {
     if (e instanceof FileUploadError) {
       console.error(`File upload error in main: ${e.message}`);
@@ -436,16 +433,6 @@ export async function ImgChangeColor(original_image_base64, masked_image_base64,
     } else {
       console.error(`An unexpected error occurred in main: ${e}`);
     }
+    throw e; // Re-throw to allow handling at a higher level
   }
 }
-// Example usage
-// sharp("./origin.jpg").toBuffer()
-//   .then(originalBuffer => {
-//     return sharp("./mask.png").toBuffer()
-//       .then(async maskBuffer => {
-//         const result = await ImgChangeColor(originalBuffer.toString('base64'), maskBuffer.toString('base64'), "#FFFFFF");
-//         console.log(result.slice(0, 50));
-//         return result;
-//       });
-//   })
-//   .catch(error => console.error('Error:', error));

@@ -1,22 +1,26 @@
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import dotenv from "dotenv";
 
-const prompt_refiner = async (prompt) => {
-    const reasoning_step = z.object({
-        explanation: z.string(),
-        output: z.string(),
-    })
-    const result_structure = z.object({
-        steps: z.array(reasoning_step),
-        final_result: z.string(),
-    });
-    const openai = new OpenAI({ apiKey: "" });
-    const completion = await openai.beta.chat.completions.parse({
-        model: "gpt-4o-mini",
-        messages: [
-            {
-                "role": "system", "content":`You are an AI assistant specialized in generating prompts for Stable Diffusion, an AI image generation model. Your task is to create effective prompts based on user inputs, focusing on photorealistic results suitable for marketing purposes.
+dotenv.config();
+
+export const prompt_refiner = async (prompt: string) => {
+  const reasoning_step = z.object({
+    explanation: z.string(),
+    output: z.string(),
+  });
+  const result_structure = z.object({
+    steps: z.array(reasoning_step),
+    final_result: z.string(),
+  });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const completion = await openai.beta.chat.completions.parse({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: `You are an AI assistant specialized in generating prompts for Stable Diffusion, an AI image generation model. Your task is to create effective prompts based on user inputs, focusing on photorealistic results suitable for marketing purposes.
 
                 Instructions:
                 1. Analyze the user's input and generate a prompt for Stable Diffusion that will produce a high-quality, photorealistic image suitable for marketing purposes.
@@ -32,24 +36,16 @@ const prompt_refiner = async (prompt) => {
                 - Add technical image quality terms (e.g., high resolution, HDR)
                 
                 After your thought process, provide the final prompt in <final_prompt> tags. Then, count the words in your final prompt to ensure it doesn't exceed 20 words. If it does, revise it to meet the word limit.
-                `}
-            ,
-            {
-                "role": "user",
-                "content":prompt
-            }
-        ],
-        response_format: zodResponseFormat(result_structure, "result"),
-
-    });
-    const result = completion.choices[0].message.parsed;
-    console.log(result);
-    return result.final_result;
-}
-
-
-const prompt ="Black wood modern Room"
-
-
-let response = await prompt_refiner(prompt);
-console.log(response);
+                `,
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    response_format: zodResponseFormat(result_structure, "result"),
+  });
+  const result = completion.choices[0].message.parsed;
+  console.log(result);
+  return result?.final_result;
+};

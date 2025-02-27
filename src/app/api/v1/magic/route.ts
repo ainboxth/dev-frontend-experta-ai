@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
 import sharp from "sharp";
 import { ImgChangeColor } from "./function/changeColor";
+import { prompt_refiner } from "./function/PromptRefiner";
 
 const replicate = new Replicate();
 
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
     let model_input_nomal = {
       mask: mask,
       image: image,
-      prompt: prompt,
+      prompt: prompt_refiner(prompt) ?? prompt,
       guidance: 65,
       lora_scale: 1,
       megapixels: "1",
