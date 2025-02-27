@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       num_outputs: 4,
       aspect_ratio: "4:3",
       output_format: "png",
-      output_quality: 80,
+      output_quality: 100,
       prompt_strength: Number(value) / 100,
       num_inference_steps: 28,
     };
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       num_outputs: 4,
       control_image: control_image,
       output_format: "png",
-      output_quality: 80,
+      output_quality: 100,
       num_inference_steps: 28,
     };
 
