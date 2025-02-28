@@ -385,7 +385,10 @@ const MagicEditTab: React.FC<MagicEditTabProps> = ({
             fontWeight: "bold",
           }}
           size="md"
-          isDisabled={!paths.length}
+          isDisabled={
+            !paths.length ||
+            (editOption === "changeColor" && selectedColor === "")
+          }
         >
           Generate
         </Button>
