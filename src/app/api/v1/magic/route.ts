@@ -65,10 +65,20 @@ export async function POST(req: NextRequest) {
         "zylim0702/remove-object:0e3a841c913f597c1e4c321560aa69e2bc1f15c65f8c366caafc379240efd8ba";
     }
 
+    const chekPrompt = () => {
+      if (color) {
+        return prompt;
+      }else if (useFor === "magic_removeMask") {
+        return prompt;
+      }else {
+        return prompt_refiner(prompt) ?? prompt;
+      }
+    };
+
     let model_input_nomal = {
       mask: mask,
       image: image,
-      prompt: prompt_refiner(prompt) ?? prompt,
+      prompt: chekPrompt(),
       guidance: 65,
       lora_scale: 1,
       megapixels: "1",
@@ -85,16 +95,18 @@ export async function POST(req: NextRequest) {
     };
 
     const model_input =
-      model === "delete" ? model_input_delete : model_input_nomal;
+      body.useFor === "magic_removeMask"
+        ? model_input_delete
+        : model_input_nomal;
 
     return { model_name, model_input };
   };
 
   try {
-    const validate = validateRequestBody(body);
-    if (validate) {
-      throw new Error(JSON.stringify(validate));
-    }
+    // const validate = validateRequestBody(body);
+    // if (validate) {
+    //   throw new Error(JSON.stringify(validate));
+    // }
     const model = useFor === "magic_removeMask" ? "delete" : "dev";
     const { model_name, model_input: input } = useModel(model);
 
