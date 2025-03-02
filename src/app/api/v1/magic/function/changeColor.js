@@ -39,30 +39,6 @@ class SegmentationError extends Error {
   }
 }
 
-async function upload_image(image_base64) {
-  /**
-   * Uploads an image to fal_client and returns the URL.
-   *
-   * Args:
-   *     @param image_base64 — Base64-encoded image data.
-   *
-   * Returns:
-   *     The URL of the uploaded image.
-   *
-   * Raises:
-   *     FileUploadError: If there is an error during file upload.
-   */
-  try {
-    const imageBuffer = Buffer.from(image_base64, 'base64');
-    // Create a File object directly from the buffer
-    const file = new File([imageBuffer], 'temp_image.png');
-    const url = await fal.storage.upload(file);
-    return url;
-  } catch (e) {
-    throw new FileUploadError(`Error uploading image: ${e}`);
-  }
-}
-
 async function estimate_bounding_box(imageBuffer) {
   /**
    * Estimates the bounding box coordinates of the white space in a black and white image.
@@ -143,18 +119,10 @@ async function get_segment(coordinate, image_base64) {
     }
   };
 
-  let image_url;
-  try {
-    image_url = await upload_image(image_base64);
-  } catch (e) {
-    throw new SegmentationError(
-      `Error in get_segment during image upload: ${e}`
-    );
-  }
 
   const arguments_ = {
     // arguments is reserved word
-    image_url: image_url,
+    image_url: "data:image/jpeg;base64," + image_base64,
     box_prompts: [
       {
         y_min: coordinate[0][1],
